@@ -62,13 +62,12 @@ static char		*ft_splitword(char const *s, int start, char c)
 static char		**ft_splitfree(char **split, size_t j)
 {
 	split[j] = 0;
-	if (split)
-		while (*split)
-		{
-			free(*split);
-			*split = 0;
-			split++;
-		}
+	while (*split)
+	{
+		free(*split);
+		*split = 0;
+		split++;
+	}
 	free(split);
 	split = 0;
 	return (0);

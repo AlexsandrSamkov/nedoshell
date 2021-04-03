@@ -3,8 +3,7 @@ OBJS_PATH		=	objects/
 SRCS_PATH		=	source/
 HEAD_PATH		=	includes/
 
-SRCS_LIST 		=	main.c test.c ft_parse.c
-
+SRCS_LIST 		=	main.c
 SRCS			=	$(addprefix $(SRCS_PATH), $(SRCS_LIST))	
 OBJS_LIST		=	$(patsubst %.c, %.o, $(SRCS_LIST))
 OBJS			=	$(addprefix $(OBJS_PATH),$(OBJS_LIST))
@@ -14,7 +13,7 @@ MAKE_LIBFT		=	make -C libs/libft
 CC 				=	gcc
 CFLAGS			=	-O2 -Wall -Wextra -Werror -I $(HEAD_PATH)
 OFLAGS			=	-O2 -Wall -Wextra -Werror -c -I $(HEAD_PATH)
-DFLAGS			=	-g -I $(HEAD_PATH)
+DFLAGS			=	-Wall -Wextra -Werror -g -I $(HEAD_PATH)
 LIBFT			= 	libs/libft/libft.a
 
 all: $(NAME) 
@@ -31,12 +30,12 @@ $(LIBFT):
 	$(MAKE_LIBFT)
 
 debug:
-	$(CC) -I $(HEAD_PATH) $(CFLAGS) $(SRCS) libft.a $(LIBFT)  -o $(NAME)
+	$(CC) $(DFLAGS) -I $(HEAD_PATH)  $(SRCS) libft.a $(LIBFT)  -o $(NAME)
 
 run:debug
 	./minishell
 test: test.c;
-	$(CC) libft.a test.c -o test
+	$(CC) -g -I $(HEAD_PATH) libft.a test.c -o test
 
 testrun:test
 	@./test
