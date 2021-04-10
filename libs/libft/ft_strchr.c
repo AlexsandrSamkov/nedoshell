@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 17:01:16 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/04 14:53:32 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:26:14 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 char	*ft_strchr(const char *s, int c)
 {
-	char *str;
+	char	*str;
 
-	str = (char*)s;
+	str = (char *)s;
 	while (*str)
 	{
 		if (*str == c)

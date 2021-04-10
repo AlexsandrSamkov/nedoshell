@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 16:27:11 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/05 15:05:35 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:57:09 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	*ft_memset(void *b, int c, size_t len)
 {
-	char *p;
+	char	*p;
 
 	p = b;
 	while (len--)

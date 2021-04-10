@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 18:02:01 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/06 18:59:52 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:26:22 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	ft_lstclear(t_list **lst, void (*del)(void*))
 {
-	t_list *tmp;
+	t_list	*tmp;
 
 	if (!del)
 		return ;

@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 12:42:52 by weambros          #+#    #+#             */
-/*   Updated: 2021/03/15 13:31:01 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:49:59 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-typedef struct		s_list
+typedef struct s_list
 {
 	void			*content;
 	struct s_list	*next;
-}					t_list;
+}	t_list;
 
 void				*ft_memset(void *b, int c, size_t len);
 
@@ -30,8 +30,7 @@ void				ft_bzero(void *s, size_t n);
 
 void				*ft_memccpy(void *dst, const void *src, int c, size_t n);
 
-void				*ft_memcpy(void *restrict dst,
-					const void *restrict src, size_t n);
+void				*ft_memcpy(void *dst, const void *src, size_t n);
 
 void				*ft_memmove(void *dst, const void *src, size_t len);
 
@@ -47,13 +46,13 @@ char				*ft_strrchr(const char *s, int c);
 
 int					ft_strncmp(const char *s1, const char *s2, size_t n);
 
-size_t				ft_strlcpy(char *restrict dst,
-					const char *restrict src, size_t dstsize);
+size_t				ft_strlcpy(char *dst, \
+					const char *src, size_t dstsize);
 
-size_t				ft_strlcat(char *restrict dst,
-					const char *restrict src, size_t dstsize);
+size_t				ft_strlcat(char *dst, \
+					const char *src, size_t dstsize);
 
-char				*ft_strnstr(const char *haystack,
+char				*ft_strnstr(const char *haystack, \
 					const char *needle, size_t slen);
 
 void				*ft_calloc(size_t count, size_t size);
@@ -110,14 +109,14 @@ void				ft_lstclear(t_list **lst, void (*del)(void*));
 
 void				ft_lstiter(t_list *lst, void (*f)(void *));
 
-t_list				*ft_lstmap(t_list *lst,
+t_list				*ft_lstmap(t_list *lst, \
 					void *(*f)(void *), void (*del)(void *));
 
 char				*ft_itoa(int n);
 
 int					ft_isspace(char c);
 
-t_list				*ft_lstmap(t_list *lst,
+t_list				*ft_lstmap(t_list *lst, \
 					void *(*f)(void *), void (*del)(void *));
 
 int					get_next_line(int fd, char **line);

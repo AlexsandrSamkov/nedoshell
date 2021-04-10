@@ -6,13 +6,13 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/04 16:45:30 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/08 18:31:21 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:40:53 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int			ft_checklong(int sign)
+int	ft_checklong(int sign)
 {
 	if (sign == 1)
 		return (-1);
@@ -20,7 +20,7 @@ int			ft_checklong(int sign)
 		return (0);
 }
 
-int			ft_atoi(const char *str)
+int	ft_atoi(const char *str)
 {
 	long long	n;
 	int			sign;

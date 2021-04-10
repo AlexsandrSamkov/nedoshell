@@ -6,13 +6,13 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 13:55:48 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/03 13:56:02 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:22:46 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int		ft_tolower(int c)
+int	ft_tolower(int c)
 {
 	if (c <= 64 || c >= 91)
 		return (c);

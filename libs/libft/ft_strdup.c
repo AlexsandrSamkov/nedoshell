@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/04 17:55:37 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/05 15:03:23 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:41:37 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ char	*ft_strdup(const char *s1)
 	size_t	i;
 
 	i = 0;
-	if (!(s = (char*)malloc(sizeof(char) * (ft_strlen(s1) + 1))))
+	s = (char *)malloc(sizeof(char) * (ft_strlen(s1) + 1));
+	if (!s)
 		return (0);
 	while (s1[i] != '\0')
 	{

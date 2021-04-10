@@ -6,15 +6,15 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/04 21:14:22 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/08 16:37:04 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:55:00 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static	int		ft_set(const char c, char const *set)
+static	int	ft_set(const char c, char const *set)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (set[i] != 0)
@@ -28,8 +28,8 @@ static	int		ft_set(const char c, char const *set)
 
 static	size_t	ft_upset(char const *s1, char const *set)
 {
-	size_t upset;
-	size_t i;
+	size_t	upset;
+	size_t	i;
 
 	upset = 0;
 	i = 0;
@@ -45,8 +45,8 @@ static	size_t	ft_upset(char const *s1, char const *set)
 
 static	size_t	ft_downset(char const *s1, char const *set)
 {
-	size_t downset;
-	size_t i;
+	size_t	downset;
+	size_t	i;
 
 	downset = 0;
 	i = ft_strlen(s1) - 1;
@@ -60,7 +60,7 @@ static	size_t	ft_downset(char const *s1, char const *set)
 	return (downset);
 }
 
-char			*ft_strtrim(char const *s1, char const *set)
+char	*ft_strtrim(char const *s1, char const *set)
 {
 	char	*str;
 	char	*result;
@@ -77,7 +77,8 @@ char			*ft_strtrim(char const *s1, char const *set)
 	down = ft_downset(s1, set);
 	if (up == len)
 		return (ft_strdup(""));
-	if (!(str = ft_calloc(sizeof(char), len + 1 - up - down)))
+	str = ft_calloc(sizeof(char), len + 1 - up - down);
+	if (!str)
 		return (0);
 	result = str;
 	while (up < len - down)

@@ -6,13 +6,13 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 13:56:12 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/03 13:56:27 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:03:32 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int		ft_toupper(int c)
+int	ft_toupper(int c)
 {
 	if (c <= 96 || c >= 123)
 		return (c);

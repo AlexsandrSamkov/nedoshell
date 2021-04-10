@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 15:01:52 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/03 15:53:49 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:03:59 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 void	*ft_memccpy(void *dst, const void *src, int c, size_t n)
 {
-	unsigned char *s;
-	unsigned char *d;
-	unsigned char cp;
+	unsigned char	*s;
+	unsigned char	*d;
+	unsigned char	cp;
 
 	cp = (unsigned char)c;
 	d = (unsigned char *)dst;

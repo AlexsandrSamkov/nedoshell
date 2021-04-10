@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/04 17:33:13 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/04 19:10:45 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:43:05 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 
 void	*ft_calloc(size_t count, size_t size)
 {
-	void *p;
+	void	*p;
 
-	if (!(p = malloc(size * count)))
+	p = malloc(size * count);
+	if (!p)
 		return (0);
 	ft_bzero(p, size * count);
 	return (p);

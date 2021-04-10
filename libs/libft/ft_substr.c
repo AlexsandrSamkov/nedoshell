@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/04 18:13:58 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/05 15:10:59 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:56:54 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 
 	if (s == 0)
 		return (0);
-	if (!(str = ft_calloc(len + 1, sizeof(char))))
+	str = ft_calloc(len + 1, sizeof(char));
+	if (!str)
 		return (0);
 	i = 0;
 	while (len && start < ft_strlen(s))

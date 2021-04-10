@@ -6,21 +6,25 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 19:02:20 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/07 20:42:13 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:52:30 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-size_t	ft_strlcat(char *restrict dst, const char *restrict src, size_t dstsize)
+size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
-	size_t dst_len;
-	size_t i;
-	size_t len;
+	size_t	dst_len;
+	size_t	i;
+	size_t	len;
 
 	i = 0;
 	dst_len = ft_strlen(dst);
-	if (!(len = (dstsize < dst_len ? dstsize : dst_len) + ft_strlen(src)))
+	if (dstsize < dst_len)
+		len = dstsize + ft_strlen(src);
+	else
+		len = dst_len + ft_strlen(src);
+	if (!len)
 		return (0);
 	if (dstsize <= dst_len)
 		return (len);

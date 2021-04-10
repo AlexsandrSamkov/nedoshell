@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 13:49:54 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/07 22:06:27 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:52:44 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,14 @@
 
 void	ft_putnbr_fd(int n, int fd)
 {
-	unsigned	nb;
+	unsigned long	nb;
 
 	if (n < 0)
 		ft_putchar_fd('-', fd);
-	nb = n < 0 ? -(n) : (n);
+	if (n < 0)
+		nb = -(n);
+	else
+		nb = n;	
 	if (nb >= 10)
 	{
 		ft_putnbr_fd(nb / 10, fd);

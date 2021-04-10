@@ -20,6 +20,20 @@
 #include "stdlib.h"
 #include "unistd.h"
 
+# define MSG_ERR_NO_FILE "No such file or directory"
+# define MSG_ERR_NO_PERM "Permission denied"
+# define MSG_ERR_IS_DIRECT "Is a directory "
+# define MSG_ERR_N0_COMMAND "Command not found: "
+# define MSG_ERR_SYNTAX_ERR "syntax error near unexpected token\n"
+
+# define ERR_NO_FILE -1
+# define ERR_NO_PERM -2
+# define ERR_IS_DIRECT -3
+# define ERR_N0_COMMAND -4
+# define ERR_SYNTAX_ER -5
+# define ERR_GO_NEXT	-6
+
+
 #define	TOKEN_BIN 1
 #define TOKEN_PIPE 2
 #define TOKEN_R_IN 3
@@ -28,6 +42,10 @@
 #define TOKEN_ANDAND 6
 #define TOKEN_OROR	7
 
+#define TOKEN_STR_PIPE "|"
+#define TOKEN_STR_BIN ";"
+#define TOKEN_STR_R_IN "<"
+
 
 typedef struct	s_spec_chr
 {
@@ -35,6 +53,7 @@ typedef struct	s_spec_chr
 	int quotes;
 	int slash;
 }				t_spec_chr;
+
 
 typedef struct	s_lstcmds
 {
@@ -47,9 +66,14 @@ typedef struct	s_lstcmds
 	void	*next;
 }				t_lstcmds;
 
+typedef struct	s_lstenv
+{
+	char *key;
+	char *value;
+	void *next;
+}				t_lstenv;
 
 
-void ft_switch_quotes(int *quote,int *quotes,int slash, char c);
 int ft_count_tokens(char *line);
 void ft_init_spec(t_spec_chr *spec);
 

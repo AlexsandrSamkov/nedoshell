@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 16:43:46 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/03 16:45:44 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:37:10 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 int	ft_memcmp(const void *s1, const void *s2, size_t n)
 {
-	unsigned const char *str1;
-	unsigned const char *str2;
+	unsigned const char	*str1;
+	unsigned const char	*str2;
 
 	str1 = s1;
 	str2 = s2;

@@ -13,9 +13,9 @@ MAKE_LIBFT		=	make -C libs/libft
 CC 				=	gcc
 CFLAGS			=	-O2 -Wall -Wextra -Werror -I $(HEAD_PATH)
 OFLAGS			=	-O2 -Wall -Wextra -Werror -c -I $(HEAD_PATH)
-DFLAGS			=	-Wall -Wextra -Werror -g -I $(HEAD_PATH)
+DFLAGS			=	-Wall -Wextra -Werror -g -fsanitize=address  -I $(HEAD_PATH)
 LIBFT			= 	libs/libft/libft.a
-
+#-fsanitize=address
 all: $(NAME) 
 $(NAME): $(OBJS_PATH) $(OBJS) $(HEAD_PATH) $(LIBFT)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT)  -o $(NAME)

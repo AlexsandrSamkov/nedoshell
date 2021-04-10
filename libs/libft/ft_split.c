@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/05 18:02:34 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/10 17:38:56 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:03:17 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ static size_t	ft_splitsize(char const *s, char c)
 	return (size);
 }
 
-static char		*ft_splitword(char const *s, int start, char c)
+static char	*ft_splitword(char const *s, int start, char c)
 {
 	size_t	j;
 	size_t	i;
@@ -50,7 +50,8 @@ static char		*ft_splitword(char const *s, int start, char c)
 		j++;
 		i++;
 	}
-	if (!(str = (char *)malloc(sizeof(char) * (i + 1))))
+	str = (char *)malloc(sizeof(char) * (i + 1));
+	if (!str)
 		return (0);
 	j = 0;
 	while (s[start] != c && s[start] != '\0')
@@ -59,7 +60,7 @@ static char		*ft_splitword(char const *s, int start, char c)
 	return (str);
 }
 
-static char		**ft_splitfree(char **split, size_t j)
+static char	**ft_splitfree(char **split, size_t j)
 {
 	split[j] = 0;
 	while (*split)
@@ -73,27 +74,28 @@ static char		**ft_splitfree(char **split, size_t j)
 	return (0);
 }
 
-char			**ft_split(char const *s, char c)
+char	**ft_split(char const *s, char c)
 {
 	char	**split;
 	size_t	i;
-	size_t	j;
+	int		j;
 
 	i = 0;
-	j = 0;
+	j = -1;
 	if (!s)
 		return (0);
-	if (!(split = (char **)malloc(sizeof(char*) * (ft_splitsize(s, c) + 1))))
+	split = (char **)malloc(sizeof(char *) * (ft_splitsize(s, c) + 1));
+	if (!split)
 		return (0);
 	while (i < ft_strlen(s))
 	{
 		if (s[i] != c)
 		{
-			if (!(split[j] = ft_splitword(s, i, c)))
+			split[++j] = ft_splitword(s, i, c);
+			if (!split[j])
 				return (ft_splitfree(split, j));
 			while (s[i] != '\0' && s[i] != c)
 				i++;
-			j++;
 		}
 		i++;
 	}

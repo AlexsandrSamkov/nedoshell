@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 16:37:11 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/07 22:53:24 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:57:57 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	*ft_memchr(const void *s, int c, size_t n)
 {
-	const char *f;
+	const char	*f;
 
 	f = s;
 	while (n > 0)

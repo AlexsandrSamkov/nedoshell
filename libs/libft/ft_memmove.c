@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 16:33:45 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/05 17:42:43 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 15:53:09 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 void	*ft_memmove(void *dst, const void *src, size_t len)
 {
 	unsigned char		*d;
-	unsigned const char *s;
+	unsigned const char	*s;
 	unsigned char		*lastd;
-	unsigned const char *lasts;
+	unsigned const char	*lasts;
 
 	d = dst;
 	s = src;

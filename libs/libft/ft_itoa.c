@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 19:10:05 by weambros          #+#    #+#             */
-/*   Updated: 2020/11/08 16:38:23 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/09 16:51:35 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static size_t	ft_itoalen(int long n, size_t sign)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	if (n == 0)
@@ -27,30 +27,45 @@ static size_t	ft_itoalen(int long n, size_t sign)
 	return (i + sign);
 }
 
-char			*ft_itoa(int n)
+static void	ft_itoa_newnorm(char **s, int sign, int len, int nb)
+{
+	s[0][len--] = 0;
+	while (len >= sign)
+	{
+		if (nb >= 10)
+			s[0][len] = nb % 10 + '0';
+		else
+			s[0][len] =  nb + '0';
+		if (len == 0)
+			break ;
+		len--;
+		nb = nb / 10;
+	}
+	if (sign)
+		s[0][len] = '-';
+}
+
+char	*ft_itoa(int n)
 {
 	char		*s;
 	int long	nb;
 	size_t		sign;
 	size_t		len;
 
-	sign = n >= 0 ? (0) : (1);
+	if (n >= 0)
+		sign = 0;
+	else
+		sign = 1;
 	nb = (int long)n;
-	nb = (nb < 0) ? -(nb) : (nb);
+	if (nb < 0)
+		nb = -nb;
 	len = ft_itoalen(nb, sign);
-	if ((s = malloc(sizeof(char) * (len + 1))))
+	s = malloc(sizeof(char) * (len + 1));
+	if (s)
 	{
-		s[len--] = 0;
-		while (len >= sign)
-		{
-			s[len] = nb >= 10 ? (nb % 10 + '0') : (nb + '0');
-			if (len == 0)
-				break ;
-			len--;
-			nb = nb / 10;
-		}
-		if (sign)
-			s[len] = '-';
+		ft_itoa_newnorm(&s, sign, len, nb);
 	}
+	else
+		return (0);
 	return (s);
 }
