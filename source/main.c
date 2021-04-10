@@ -823,9 +823,68 @@ int ft_get_bin(t_lstcmds *cmds, char **bins)
 }
 
 
+void ft_lstcmds_add(t_lstcmds *cmds,t_lstcmds *new)
+{
+	t_lstcmds *next;
+
+	next = cmds->next;
+	if (next)
+	{
+		next->prev = new;
+		new->next = next;
+		cmds->next = new;
+	}
+	else
+	{
+		cmds->next = new;
+		new->prev = cmds;
+		new->next = 0;
+	}
+}
+
+int ft_count_mass(char **mas)
+{
+	int i;
+
+	i = 0;
+	if (!mas)
+		return (0);
+	while (mas[i])
+		i++;
+	return (i);
+}
+
 void ft_is_error_syntax(t_lstcmds *cmds)
 {
-	if (!cmds->args)
+	t_lstcmds *prev;
+	t_lstcmds *next;
+	t_lstcmds *new;
+	char **tmp;
+	char **args;
+	int i;
+	prev = cmds->prev;
+	next = cmds->next;
+	if (!cmds->args &&
+	(cmds->token == TOKEN_R_D_OUT || cmds->token == TOKEN_R_OUT)
+	&& ((prev && prev->token == 1) || !prev) && next && next->args)
+	{
+		i = 1;
+		tmp = next->args;
+		cmds->args = ft_get_mas(ft_count_mass(tmp) - 1);
+		while (tmp[i])
+		{
+			cmds->args[i - 1] = tmp[i];
+			i++;
+		}
+		tmp[i - 1] = 0;
+		args = ft_get_mas(1);
+		args[0] = tmp[0];
+		args[1] = 0;
+		new = ft_lstcmdsnew(args,1);
+		ft_lstcmds_add(cmds,new);
+
+	}
+	else if (!cmds->args)
 		cmds->error = ERR_SYNTAX_ER;
 }
 

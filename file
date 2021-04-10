@@ -1,0 +1,69 @@
+total 272
+drwxr-xr-x  14 weambros  student    476 Apr 10 16:46 .
+drwxr-xr-x  30 weambros  student   1088 Apr 10 16:07 ..
+drwxr-xr-x  12 weambros  student    408 Apr 10 13:14 .git
+-rw-r--r--   1 weambros  student      5 Apr 10 13:14 .gitignore
+drwxr-xr-x   9 weambros  student    306 Apr 10 16:29 .idea
+-rw-r--r--   1 weambros  student   1095 Apr 10 14:32 Makefile
+-rw-r--r--   1 weambros  student      0 Apr 10 16:46 file
+drwxr-xr-x   3 weambros  student    102 Apr 10 13:14 includes
+-rw-r--r--   1 weambros  student  40416 Apr 10 13:14 libft.a
+drwxr-xr-x   4 weambros  student    136 Apr 10 13:14 libs
+-rwxr-xr-x   1 weambros  student  86792 Apr 10 16:16 minishell
+drwxr-xr-x   3 weambros  student    102 Apr 10 14:30 minishell.dSYM
+drwxr-xr-x   2 weambros  student     68 Apr 10 14:54 objects
+drwxr-xr-x   4 weambros  student    136 Apr 10 16:06 source
+total 280
+drwxr-xr-x  14 weambros  student    476 Apr 10 16:46 .
+drwxr-xr-x  30 weambros  student   1088 Apr 10 16:07 ..
+drwxr-xr-x  12 weambros  student    408 Apr 10 13:14 .git
+-rw-r--r--   1 weambros  student      5 Apr 10 13:14 .gitignore
+drwxr-xr-x   9 weambros  student    306 Apr 10 16:29 .idea
+-rw-r--r--   1 weambros  student   1095 Apr 10 14:32 Makefile
+-rw-r--r--   1 weambros  student    855 Apr 10 16:46 file
+drwxr-xr-x   3 weambros  student    102 Apr 10 13:14 includes
+-rw-r--r--   1 weambros  student  40416 Apr 10 13:14 libft.a
+drwxr-xr-x   4 weambros  student    136 Apr 10 13:14 libs
+-rwxr-xr-x   1 weambros  student  86792 Apr 10 16:16 minishell
+drwxr-xr-x   3 weambros  student    102 Apr 10 14:30 minishell.dSYM
+drwxr-xr-x   2 weambros  student     68 Apr 10 14:54 objects
+drwxr-xr-x   4 weambros  student    136 Apr 10 16:06 source
+total 280
+drwxr-xr-x  14 weambros  student    476 Apr 10 16:46 .
+drwxr-xr-x  30 weambros  student   1088 Apr 10 16:07 ..
+drwxr-xr-x  12 weambros  student    408 Apr 10 13:14 .git
+-rw-r--r--   1 weambros  student      5 Apr 10 13:14 .gitignore
+drwxr-xr-x   9 weambros  student    306 Apr 10 16:29 .idea
+-rw-r--r--   1 weambros  student   1095 Apr 10 14:32 Makefile
+-rw-r--r--   1 weambros  student   1710 Apr 10 16:47 file
+drwxr-xr-x   3 weambros  student    102 Apr 10 13:14 includes
+-rw-r--r--   1 weambros  student  40416 Apr 10 13:14 libft.a
+drwxr-xr-x   4 weambros  student    136 Apr 10 13:14 libs
+-rwxr-xr-x   1 weambros  student  86792 Apr 10 16:16 minishell
+drwxr-xr-x   3 weambros  student    102 Apr 10 14:30 minishell.dSYM
+drwxr-xr-x   2 weambros  student     68 Apr 10 14:54 objects
+drwxr-xr-x   4 weambros  student    136 Apr 10 16:06 source
+total 280
+drwxr-xr-x  14 weambros  student    476 Apr 10 16:46 .
+drwxr-xr-x  30 weambros  student   1088 Apr 10 16:07 ..
+drwxr-xr-x  12 weambros  student    408 Apr 10 13:14 .git
+-rw-r--r--   1 weambros  student      5 Apr 10 13:14 .gitignore
+drwxr-xr-x   9 weambros  student    306 Apr 10 16:29 .idea
+-rw-r--r--   1 weambros  student   1095 Apr 10 14:32 Makefile
+-rw-r--r--   1 weambros  student   2565 Apr 10 16:47 file
+drwxr-xr-x   3 weambros  student    102 Apr 10 13:14 includes
+-rw-r--r--   1 weambros  student  40416 Apr 10 13:14 libft.a
+drwxr-xr-x   4 weambros  student    136 Apr 10 13:14 libs
+-rwxr-xr-x   1 weambros  student  86792 Apr 10 16:16 minishell
+drwxr-xr-x   3 weambros  student    102 Apr 10 14:30 minishell.dSYM
+drwxr-xr-x   2 weambros  student     68 Apr 10 14:54 objects
+drwxr-xr-x   4 weambros  student    136 Apr 10 16:06 source
+Makefile
+file
+includes
+libft.a
+libs
+minishell
+minishell.dSYM
+objects
+source

@@ -30,7 +30,7 @@ $(LIBFT):
 	$(MAKE_LIBFT)
 
 debug:
-	$(CC) $(DFLAGS) -I $(HEAD_PATH)  $(SRCS) libft.a $(LIBFT)  -o $(NAME)
+	$(CC) $(DFLAGS) -I $(HEAD_PATH)  $(SRCS) libft.a   -o $(NAME)
 
 run:debug
 	./minishell
