@@ -21,10 +21,17 @@
 #include "unistd.h"
 
 # define MSG_ERR_NO_FILE "No such file or directory"
-# define MSG_ERR_NO_PERM "Permission denied"
+# define MSG_ERR_NO_PERM "Permission denied "
 # define MSG_ERR_IS_DIRECT "Is a directory "
 # define MSG_ERR_N0_COMMAND "Command not found: "
 # define MSG_ERR_SYNTAX_ERR "syntax error near unexpected token\n"
+# define MSG_ERR_NOT_VALID_ID "\': not a valid identifier"
+# define MSG_ERR_UNSET "unset: `"
+
+# define SET 'C'
+# define GET 'G'
+# define INIT 'C'
+# define UNSET 'U'
 
 # define ERR_NO_FILE -1
 # define ERR_NO_PERM -2

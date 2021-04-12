@@ -1,5 +1,5 @@
 #include "../includes/minishell.h"
-
+#include <errno.h>
 char **ft_get_mas(int count)
 {
 	char **res;
@@ -9,6 +9,27 @@ char **ft_get_mas(int count)
 		return (0);
 	return (res);
 }
+
+void ft_put_error(char *s)
+{
+	int len;
+
+	len = ft_strlen(s);
+	if (!s || !len)
+		return;
+	if (write(2,s, ft_strlen(s)) < 0)
+		return; // ошибка
+}
+
+int ft_errno(int n, char f)
+{
+	static int err;
+	if (f == SET)
+		err = n;
+	return (err);
+}
+
+
 
 void ft_check_str_fatal(char *str)
 {
@@ -38,35 +59,6 @@ void ft_free_mas(char ***mas)
 	}
 	free(*mas);
 	*mas = 0;
-}
-
-int ft_switch_spec(t_spec_chr *spec, char c)
-{
-	int f_slash;
-
-	f_slash = 0;
-	if (spec->slash == 1 && spec->quote == 0 && spec->quotes == 0)
-	{
-		spec->slash = 0;
-		f_slash = 1;
-	}
-	if (c == '\\' && spec->quote == 0 && spec->quotes == 0 )
-		spec->slash = 1;
-	if (spec->quote == 1 && !f_slash && c == '\'' && spec->quotes == 0)
-		spec->quote = 0;
-	else if (spec->quote == 0 && !f_slash && c == '\'' && spec->quotes == 0)
-		spec->quote = 1;
-	if (spec->quotes == 1 && !f_slash && c == '\"' && spec->quote == 0)
-		spec->quotes = 0;
-	else if (spec->quotes == 0 && !f_slash && c == '\"' && spec->quote == 0)
-		spec->quotes = 1;
-	if (c == '\\' && spec->quote == 0 && spec->quotes == 0 && f_slash == 1)
-		return (1);
-	if (c == '\"' && spec->quote == 0 && f_slash == 0)
-		return (1);
-	if (c == '\'' && spec->quotes == 0 && f_slash == 0)
-		return (1);
-	return (0);
 }
 
 int ft_switch_quotes(int *quote,int *quotes,int slash, char c)
@@ -220,11 +212,15 @@ int ft_count_args_spec(char *s)
 	count = 0;
 	while (s[i])
 	{
-		debug  = s[i];
-		if ( (s[i] == '\"' || s[i] == '\'' || s[i] == '\\')
-			 && ft_switch_spec(&spec,s[i]))
+		debug = s[i];
+		ft_switch_quotes(&spec.quote,&spec.quotes,spec.slash,s[i]);
+		if((s[i] == '\"' && !spec.quote && !spec.slash)
+		|| (s[i] == '\'' && !spec.quotes && !spec.slash)
+		|| (s[i] == '\\' && !spec.quotes && !spec.quote && !spec.slash))
 			count++;
+		ft_switch_slash(&spec,s[i]);
 		i++;
+
 	}
 	return (count);
 }
@@ -244,13 +240,14 @@ void ft_del_spec(char **s)
 		return; //malloc
 	while (s[0][j])
 	{
+		ft_switch_quotes(&spec.quote,&spec.quotes,spec.slash,s[0][j]);
 		debug = s[0][j];
-		while ( (s[0][j] == '\"' || s[0][j] == '\'' || s[0][j] == '\\')
-				&& ft_switch_spec(&spec,s[0][j]) && s[0][j])
-			j++;
-		if (!s[0][j])
-			break;
-		res[i++] = s[0][j++];
+		if (!((s[0][j] == '\"' && !spec.quote && !spec.slash)
+		|| (s[0][j] == '\'' && !spec.quotes && !spec.slash)
+		|| (s[0][j] == '\\' && !spec.quotes && !spec.quote && !spec.slash)))
+			res[i++] = s[0][j];
+		ft_switch_slash(&spec,s[0][j]);
+	 		j++;
 	}
 	res[i] = '\0';
 	ft_free_str(s);
@@ -294,6 +291,63 @@ void ft_lstenv_add_back(t_lstenv **lstenv, t_lstenv *new)
 		*lstenv = new;
 }
 
+void ft_lstenv_free(t_lstenv **del)
+{
+	t_lstenv *tmp;
+
+	tmp = *del;
+	ft_free_str(&tmp->key);
+	ft_free_str(&tmp->value);
+	free(*del);
+	*del = 0;
+}
+
+char *ft_lstenv_del_key(t_lstenv **env, char *key)
+{
+	t_lstenv *begin;
+	t_lstenv *tmp;
+
+	begin = *env;
+	tmp = 0;
+	if (!ft_strncmp(begin->key, key, ft_strlen(begin->key))
+		&& ft_strlen(begin->key) == ft_strlen(key) && !begin->next)
+	{
+		ft_lstenv_free(env);
+		return (0);
+	}
+	while (begin)
+	{
+		if (!ft_strncmp(begin->key, key, ft_strlen(begin->key))
+		&& ft_strlen(begin->key) == ft_strlen(key))
+		{
+			if (!tmp)
+				*env = begin->next;
+			else
+				tmp = begin->next;
+			ft_lstenv_free(&begin);
+			return (0) ;
+		}
+		tmp = begin;
+		begin = begin->next;
+	}
+	return (key);
+}
+
+char *ft_lst_get_env(t_lstenv *env, char *s)
+{
+	char *res;
+
+	res = 0;
+	while (env)
+	{
+		if (!ft_strncmp(s,env->key, ft_strlen(env->key)))
+			res = ft_strdup(env->value); // malloc
+		env = env->next;
+	}
+	return (res);
+}
+
+
 void ft_lstenv_del_all(t_lstenv **lstenv)
 {
 	t_lstenv *tmp;
@@ -304,14 +358,11 @@ void ft_lstenv_del_all(t_lstenv **lstenv)
 	{
 		tmp = begin;
 		begin = begin->next;
-		ft_free_str(&tmp->value);
-		ft_free_str(&tmp->key);
-		free(tmp);
-		tmp = 0;
+		ft_lstenv_free(&tmp);
 	}
 }
 
-void ft_get_env_key_value(char *env, char **key, char **value)
+void ft_get_env_key_value(char *env, char **key  , char **value)
 {
 	char *tmp;
 	int i;
@@ -355,22 +406,75 @@ t_lstenv *ft_get_lstenv(char **env)
 	return (lstenv);
 }
 
-char *ft_get_env_value(t_lstenv *lstenv, char *key)
-{
-	char *value;
+//char *ft_get_env_value(t_lstenv *lstenv, char *key)
+//{
+//	char *value;
+//
+//	value = 0;
+//	while (lstenv)
+//	{
+//		if (!ft_strncmp(key, lstenv->key, ft_strlen(lstenv->key)))
+//		{
+//			value = ft_strdup(lstenv->value); //malloc
+//			break;
+//		}
+//		lstenv = lstenv->next;
+//	}
+//	return (value);
+//}
+//
+//void ft_lstenv_set(char *env, char **key  , char **value)
+//{
+//	char *tmp;
+//	int i;
+//
+//	i = 0;
+//	tmp = ft_strdup(env);
+//	if (!tmp)
+//		return ; //malloc
+//	while (tmp[i] != '=')
+//		i++;
+//	tmp[i] = '\0';
+//	*key =  ft_strdup(tmp);
+//	if (!key)
+//		return ; //malloc
+//	tmp += ++i;
+//	*value = ft_strdup(tmp);
+//	if (!value)
+//		return ; //malloc
+//	tmp -= i;
+//	tmp[i] = '=';
+//	free(tmp);
+//}
 
-	value = 0;
-	while (lstenv)
+char *ft_env(t_lstenv *init, char *res, char parm)
+{
+	static  t_lstenv *env;
+	t_lstenv *begin;
+	t_lstenv *new;
+	char *key;
+	char *value;
+	if (parm == INIT)
 	{
-		if (!ft_strncmp(key, lstenv->key, ft_strlen(lstenv->key)))
-		{
-			value = ft_strdup(lstenv->value);
-			break;
-		}
-		lstenv = lstenv->next;
+		env = init;
+		return (0);
 	}
-	return (value);
+	if (parm == GET)
+		return (ft_lst_get_env(env,res));
+	if (parm == UNSET)
+		return (ft_lstenv_del_key(&env, res));
+	begin = env;
+	if (parm == SET)
+	{
+		while (begin->next)
+			begin = begin->next;
+		ft_get_env_key_value(res, &key , &value);
+		new = ft_lstenv_new(key,value); //malloc;
+		begin->next = new;
+	}
+	return (0);
 }
+
 
 char *ft_del_str_from_str_by_index(char *s, int start, int end)
 {
@@ -427,18 +531,18 @@ char *ft_strdup_to_index(char *s, int start, int end)
 	return (res);
 }
 
-char *ft_del_env_to_str(char **s, int i, t_lstenv *lstenv)
+char *ft_del_env_to_str(char **s, int i)
 {
 	char *value;
 	char *tmp;
 	int j;
 
 	j = i + 1;
-	while (ft_isalpha(s[0][j]))
+	while (ft_isalpha(s[0][j]) || ft_isdigit(s[0][j]))
 		j++;
 	value = ft_strdup_to_index(*s,i + 1,j);
 	tmp = value;
-	value = ft_get_env_value(lstenv,value);
+	value = ft_env(0, value, GET);
 	ft_free_str(&tmp);
 	tmp = *s;
 	*s = ft_del_str_from_str_by_index(*s, i, j);
@@ -482,24 +586,22 @@ char *ft_strjoin_index(char *s1, char *s2, int *start)
 	return (res);
 }
 
-void ft_insert_env_to_args(char **s, char **env)
+void ft_insert_env_to_args(char **s)
 {
 	int i;
 	char *value;
 	char *tmp;
 	t_spec_chr spec;
-	t_lstenv *lstenv;
 	char debug;
 	ft_init_spec(&spec);
 	i = 0;
-	lstenv = ft_get_lstenv(env);
 	while (s[0][i])
 	{
 		debug = s[0][i];
 		ft_switch_quotes(&spec.quote, &spec.quotes, spec.slash, s[0][i]);
 		if (s[0][i] == '$' && !spec.quote && !spec.slash)
 		{
-			value = ft_del_env_to_str(s,i,lstenv);
+			value = ft_del_env_to_str(s, i);
 			if (value)
 			{
 				tmp = *s;
@@ -512,23 +614,17 @@ void ft_insert_env_to_args(char **s, char **env)
 		ft_switch_slash(&spec, s[0][i]);
 		i++;
 	}
-	ft_lstenv_del_all(&lstenv);
 }
 
 
 
-char *ft_get_args_val(char *line, int start, int end,char **env)
+char *ft_get_args_val(char *line, int start, int end)
 {
 	char *res;
-	char *tmp;
 
 	res = ft_strdup_to_index(line,start,end);
-	tmp = res;
-	res = ft_strtrim(res," ");
-	ft_free_str(&tmp);
 	if(!res)
 		return (0); //fatal exit;
-	ft_insert_env_to_args(&res,env);
 	ft_del_spec(&res);
 	return (res);
 }
@@ -562,7 +658,7 @@ int ft_args_count(char *line)
 	return(count);
 }
 
-char *ft_get_args_str(char *line, int *i, char **env)
+char *ft_get_args_str(char *line, int *i)
 {
 	t_spec_chr	spec;
 	int start;
@@ -580,12 +676,12 @@ char *ft_get_args_str(char *line, int *i, char **env)
 			(*i)++;
 		if ((line[*i] == ' ' && !ft_check_spec(&spec)) || !line[*i])
 			{
+				end = *i;
+				if (!line[*i] && (*i - 1) > 0 && line[*i - 1] == ' ')
+					end--;
 				while (line[*i] == ' ')
 					(*i)++;
-				end = (*i) ;
-				res = ft_get_args_val(line, start, end,env);
-				while (line[*i] == ' ')
-					(*i)++;
+				res = ft_get_args_val(line, start, end);
 				break;
 			}
 		ft_switch_slash(&spec, line[*i]);
@@ -594,32 +690,11 @@ char *ft_get_args_str(char *line, int *i, char **env)
 	return (res);
 }
 
-char *ft_get_str_token(char *line, int start, int end)
-{
-	char *res;
-	int i;
-	int fix;
-	if (end <= start)
-		return (0);
-	if (start == end )
-		fix = 1;
-	else
-		fix = 2;
-	res = malloc(end - start + fix);
-	if (!res)
-		return (0); // сделать exit_fatal;
-	i = 0;
-	while (start <= end && line[start])
-		res[i++] = line[start++];
-	res[i] = '\0';
-	return (res);
-}
-
 int ft_get_token_end(int token, int *i,char *line)
 {
 	int res;
 
-	res = *i;
+	res = *i + 1;
 	if (!line[*i + 1] && token  == 0)
 	{
 		(*i)++;
@@ -640,7 +715,7 @@ int ft_get_token_end(int token, int *i,char *line)
 	return (res);
 }
 
-char **ft_get_args(char *line, char **env)
+char **ft_get_args(char *line)
 {
 	int i;
 	int count;
@@ -657,7 +732,7 @@ char **ft_get_args(char *line, char **env)
 		return (0); //fatal exit
 	while (j < count)
 	{
-		args[j] = ft_get_args_str(line, &i,env);
+		args[j] = ft_get_args_str(line, &i);
 		if (!args[j])
 			return (0); //fatal exit
 		j++;
@@ -673,23 +748,26 @@ void ft_get_token(char *line, int *i, char **res, int *token)
 	int			start;
 	int			end;
 	char debug = 0;
-	start = *i;
+
 	*token  = -1;
 	ft_init_spec(&spec);
 	if (!line[*i])
 		return ;
+	while (line[*i] == ' ')
+		(*i)++;
+	start = *i;
 	while (line[*i])
 	{
 		debug = line[*i];
 		ft_switch_quotes(&spec.quote, &spec.quotes, spec.slash, line[*i]);
-		ft_switch_slash(&spec,line[*i]);
 		*token = ft_istoken(line,i,ft_check_spec(&spec));
 		if ( 0 <= *token  || !line[*i + 1])
 			{
 				end = ft_get_token_end(*token,i,line);
-				*res = ft_get_str_token(line, start, end);
+				*res = ft_strdup_to_index(line,start,end);
 				return ;
 			}
+		ft_switch_slash(&spec,line[*i]);
 		(*i)++;
 	}
 }
@@ -812,35 +890,18 @@ int ft_get_bin(t_lstcmds *cmds, char **bins)
 {
 	t_lstcmds *prev;
 	prev = cmds->prev;
+
 	if (prev)
 		if (prev->token == TOKEN_R_D_OUT || prev->token == TOKEN_R_OUT
 		|| prev->token == TOKEN_R_IN)
 		return (1);
-	if (!ft_strncmp("./", cmds->args[0],2) || ft_strchr(cmds->args[0],'/'))
+	if (!ft_strncmp("./", cmds->args[0],2)
+		|| ft_strchr(cmds->args[0],'/'))
 		return (ft_check_run(cmds->args[0], cmds));
 	cmds->error  = ft_check_bins(&cmds->args[0],bins);
 	return (0);
 }
 
-
-void ft_lstcmds_add(t_lstcmds *cmds,t_lstcmds *new)
-{
-	t_lstcmds *next;
-
-	next = cmds->next;
-	if (next)
-	{
-		next->prev = new;
-		new->next = next;
-		cmds->next = new;
-	}
-	else
-	{
-		cmds->next = new;
-		new->prev = cmds;
-		new->next = 0;
-	}
-}
 
 int ft_count_mass(char **mas)
 {
@@ -858,12 +919,11 @@ void ft_is_error_syntax(t_lstcmds *cmds)
 {
 	t_lstcmds *prev;
 	t_lstcmds *next;
-	t_lstcmds *new;
 	char **tmp;
-	char **args;
 	int i;
 	prev = cmds->prev;
 	next = cmds->next;
+
 	if (!cmds->args &&
 	(cmds->token == TOKEN_R_D_OUT || cmds->token == TOKEN_R_OUT)
 	&& ((prev && prev->token == 1) || !prev) && next && next->args)
@@ -876,35 +936,62 @@ void ft_is_error_syntax(t_lstcmds *cmds)
 			cmds->args[i - 1] = tmp[i];
 			i++;
 		}
-		tmp[i - 1] = 0;
-		args = ft_get_mas(1);
-		args[0] = tmp[0];
-		args[1] = 0;
-		new = ft_lstcmdsnew(args,1);
-		ft_lstcmds_add(cmds,new);
+		cmds->args[i - 1] = 0;
+		next->args = ft_get_mas(1);
+		next->args[0] = tmp[0];
+		next->args[1] = 0;
 
 	}
 	else if (!cmds->args)
 		cmds->error = ERR_SYNTAX_ER;
 }
 
-
-
+void ft_check_r_out(t_lstcmds *cmds)
+{
+	t_lstcmds *next;
+	char **tmp;
+	t_lstcmds *swap;
+	while (cmds)
+	{
+		next = cmds->next;
+		if (next && (cmds->token == TOKEN_R_D_OUT || cmds->token == TOKEN_R_OUT)
+			&& (next->token == TOKEN_R_D_OUT || next->token == TOKEN_R_OUT))
+		{
+			cmds = cmds->next;
+			swap = cmds;
+			while (cmds)
+			{
+				if (cmds->token != TOKEN_R_D_OUT && cmds->token != TOKEN_R_OUT)
+					break;
+				cmds = cmds->next;
+			}
+			if (!cmds)
+				return;
+			tmp = cmds->args;
+			cmds->args = swap->args;
+			swap->args = tmp;
+		}
+		cmds = cmds->next;
+	}
+}
 
 int   ft_check(t_lstcmds *cmds,char **env)
 {
 	char **bins;
+	t_lstcmds *begin;
 
+	begin = cmds;
 	bins = ft_get_path(env);
 	if (!bins)
 		return (0); //fatal_exit;
-	while (cmds)
+	while (begin)
 	{
-		ft_is_error_syntax(cmds);
-		if (cmds->args)
-			ft_get_bin(cmds,bins);
-		cmds = cmds->next;
+		ft_is_error_syntax(begin);
+		if (begin->args[0])
+			ft_get_bin(begin,bins);
+		begin = begin->next;
 	}
+	ft_check_r_out(cmds);
 	ft_free_mas(&bins);
 	return(0);
 }
@@ -982,24 +1069,25 @@ int ft_check_open_r_error(char *s,int token)
 		write(2, MSG_ERR_IS_DIRECT, ft_strlen(MSG_ERR_IS_DIRECT));
 		write(2, s, ft_strlen(s));
 		write(2,"\n",1);
-		return (0);
+		return (1);
 	}
-	if (S_IWUSR != (sb.st_mode & S_IFMT))
+	if (S_IWUSR == (sb.st_mode & S_IFMT))
 	{
 		write(2, MSG_ERR_NO_PERM, ft_strlen(MSG_ERR_NO_PERM));
 		write(2, s, ft_strlen(s));
 		write(2,"\n",1);
-		return (0);
+		return (1);
 	}
 	(void)token;
 	return (0);
 }
 
-int ft_run_r_out(int pipefd,char *filename,int token)
+int ft_run_r_out(int pipefd,char *filename,char **args,int token)
 {
 	int fd;
 	int count;
 	char *data;
+	int i;
 	data = 0;
 	if (ft_check_open_r_error(filename,token))
 		return (0);
@@ -1011,8 +1099,19 @@ int ft_run_r_out(int pipefd,char *filename,int token)
 		return (-1);
 	if (0 > (count = ft_get_pipe_data(pipefd,&data)))
 		return(-1);
-	if (0 > write(fd,data,count))
-		return (-1);
+	if (0 >= write(fd,data,count))
+		return (-1); //бяки
+	i = 1;
+	i = 1;
+	while (args[i])
+	{
+		if (ft_strlen(data))
+			if (0 >= write(fd," ", 1))
+				return (-1); // ааа враки
+		if (0 >= write(fd,args[i], ft_strlen(args[i])))
+			return (-1); // ааа враки
+		i++;
+	}
 	close(fd);
 	return (0);
 }
@@ -1049,7 +1148,7 @@ int ft_is_fork(t_lstcmds *cmds)
 {
 	t_lstcmds *prev;
 	prev = cmds->prev;
-	if (cmds->token == TOKEN_R_IN)
+	if (cmds->token == TOKEN_R_IN || cmds->error < 0)
 		return (0);
 	if (prev)
 		if (prev->token == TOKEN_R_OUT
@@ -1087,11 +1186,10 @@ void ft_close_pipe(t_lstcmds *cmds, t_lstcmds *prev)
 		close(cmds->fds[1]);
 	if (prev)
 		if (prev->token == TOKEN_PIPE
+		 || prev->token == TOKEN_R_OUT
 		 || prev->token == TOKEN_R_D_OUT
-		 || prev->token == TOKEN_R_IN
-		 || prev->token == TOKEN_R_OUT)
+		 || prev->token == TOKEN_R_IN)
 			close(prev->fds[0]);
-
 }
 
 int ft_is_r_out(t_lstcmds *prev)
@@ -1138,11 +1236,7 @@ void ft_run_command(t_lstcmds *cmds,char **env)
 	while (cmds)
 	{
 		if (cmds->error < 0)
-		{
 			ft_run_error(cmds);
-			cmds = cmds->next;
-			continue;
-		}
 		prev = cmds->prev;
 		ft_open_pipe(cmds,prev);
 		if (ft_is_fork(cmds) == 1)
@@ -1153,32 +1247,63 @@ void ft_run_command(t_lstcmds *cmds,char **env)
 			ft_fork_command(prev, cmds, prev, env);
 		}
 		if (ft_is_r_out(prev))
-			ft_run_r_out(prev->fds[0],cmds->args[0],prev->token);
+			ft_run_r_out(prev->fds[0],cmds->args[0], cmds->args, prev->token);
 		ft_close_pipe(cmds,prev);
 		cmds = cmds->next;
 	}
 }
 
-void ft_parse(char *line,char **env)
+int ft_is_env_key(char *key)
+{
+	int i;
+	i = 0;
+	while (key[i])
+		if (ft_isdigit(key[i]) || ft_isalpha(key[i]) || key[i] == '_')
+			i++;
+		else
+			return (0);
+
+	return (1);
+}
+
+int ft_unset(char **args)
+{
+	int i;
+	int ret;
+
+	ret = 0;
+	i = 1;
+	while (args[i])
+	{
+		if (!ft_is_env_key(args[i]))
+		{
+			ft_put_error(MSG_ERR_UNSET);
+			ft_put_error(args[i]);
+			ft_put_error(MSG_ERR_NOT_VALID_ID);
+			ret = 1;
+		}
+		else
+			ft_env(0,args[i],UNSET);
+		i++;
+	}
+	return(ret);
+}
+
+void ft_parse(char **line,char **env)
 {
 	t_lstcmds *cmds;
 	char *str_token;
 	int token;
 	int i;
-	char *tmp;
+	//char *tmp;
 	cmds = 0;
 	i = 0;
 	//(void)env;
-	while (line[i])
+	ft_insert_env_to_args(line);
+	while (line[0][i])
 	{
-		ft_get_token(line, &i, &str_token, &token);
-		if (str_token)
-		{
-			tmp = str_token;
-			str_token = ft_strtrim(str_token, " ");
-			ft_free_str(&tmp);
-		}
-		ft_lstcmdsadd_back(&cmds,ft_lstcmdsnew(ft_get_args(str_token,env),
+		ft_get_token(*line, &i, &str_token, &token);
+		ft_lstcmdsadd_back(&cmds,ft_lstcmdsnew(ft_get_args(str_token),
 		token));
 		ft_free_str(&str_token);
 	}
@@ -1212,7 +1337,9 @@ int main(int argc,char *argv[],char *env[])
 	char buf[2];
 	char *command;
 	char *tmp;
-
+	t_lstenv *lstenv;
+	lstenv = ft_get_lstenv(env);
+	ft_env(ft_get_lstenv(env), 0,INIT);
 	command = 0;
 	tmp = 0;
 	buf[1] = '\0';
@@ -1227,7 +1354,7 @@ int main(int argc,char *argv[],char *env[])
 		else if (buf[0] == '\n')
 		{
 
-			ft_parse(command, env);
+			ft_parse(&command, env);
 			ft_free_str(&command);
 			write(0,"> ",2);
 		}
@@ -1247,28 +1374,19 @@ int main(int argc,char *argv[],char *env[])
 //	(void)argv;
 //	int fd1[2];
 //	//int fd2[2];
-//	int fd;
-//	char buf[2];
+////	int fd;
+////	char buf[2];
 //	char *s;
 //	s = 0;
 //	//echo test | grep -e test -e ls < test
-//	char *grep[6];
-//	grep[0] = "/usr/bin/grep";
-//	grep[1] = "-e";
-//	grep[2] = "test";
-//	grep[3] = "-e";
-//	grep[4] = "ls";
-//	grep[5] = 0;
+//	char *grep[3];
+//	grep[0] = "/bin/cat";
+//	grep[1] = 0;
+//	grep[2] = 0;
 //	pipe(fd1);
 //
-//	fd = open("/Users/aleksandrsamkov/newshell/test",O_RDONLY);
-//	while (read(fd,buf,1) > 0)
-//	{
-//		buf[1] = '\0';
-//		s = ft_strjoin(s,buf);
-//	}
-//	printf("%zd\n",write(fd1[1],"ls",2));
 //	close(fd1[1]);
+//
 //	if (!fork())
 //	{
 //		dup2(fd1[0],0);
@@ -1276,7 +1394,6 @@ int main(int argc,char *argv[],char *env[])
 //		exit(0);
 //	}
 //	wait(0);
-//	close(fd1[1]);
 //
 //}
 
@@ -1284,22 +1401,11 @@ int main(int argc,char *argv[],char *env[])
 //{
 //	(void )argv;
 //	(void )argc;
-//	char *s = "$PATH";
-//	ft_insert_env(&s,env);
-//	printf("%s\n",s);
+//	(void )env;
+//	char *s = "\" ''\"";
+//	printf("%d\n",ft_count_args_spec(s));
 //}
 
 
 
 
-
-//int main(int argc, char **argv, char **env)
-//{
-//
-//	(void )argc;
-//	(void )argv;
-//	char *s = "$PATH";
-//
-//	ft_insert_env_to_args(&s,env);
-//	printf("%s\n",s);
-//}
