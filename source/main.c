@@ -1,5 +1,4 @@
 #include "../includes/minishell.h"
-#include <errno.h>
 char **ft_get_mas(int count)
 {
 	char **res;
@@ -10,11 +9,48 @@ char **ft_get_mas(int count)
 	return (res);
 }
 
+int ft_check_my_bin(char *s)
+{
+	if (!s)
+		return (0);
+	if (!ft_strncmp("unset",s, ft_strlen(s))
+	|| !ft_strncmp("UNSET",s, ft_strlen(s))
+	|| !ft_strncmp("export",s, ft_strlen(s))
+	|| !ft_strncmp("EXPORT",s, ft_strlen(s))
+	|| !ft_strncmp("env",s, ft_strlen(s))
+	|| !ft_strncmp("ENV",s, ft_strlen(s)))
+		return (1);
+	return (0);
+}
+
+int ft_unset(char **args)
+{
+	int i;
+	int ret;
+
+	ret = 0;
+	i = 1;
+	while (args[i])
+	{
+		if (!ft_is_env_key(args[i]))
+		{
+			ft_put_error(MSG_ERR_UNSET);
+			ft_put_error(args[i]);
+			ft_put_error(MSG_ERR_NOT_VALID_ID);
+			ret = 1;
+		}
+		else
+			ft_env(0,args[i],UNSET);
+		i++;
+	}
+	return(ret);
+}
+
 void ft_put_error(char *s)
 {
 	int len;
 
-	len = ft_strlen(s);
+	len = (int)ft_strlen(s);
 	if (!s || !len)
 		return;
 	if (write(2,s, ft_strlen(s)) < 0)
@@ -115,7 +151,8 @@ t_lstcmds	*ft_lstcmdsnew(char **args, int token)
 	t_lstcmds *tmp;
 
 	tmp = 0;
-	if ((tmp = malloc(sizeof(t_lstcmds))))
+	tmp = malloc(sizeof(t_lstcmds));
+	if (tmp)
 	{
 		tmp->args = args;
 		tmp->next = 0;
@@ -375,11 +412,11 @@ void ft_get_env_key_value(char *env, char **key  , char **value)
 		i++;
 	tmp[i] = '\0';
 	*key =  ft_strdup(tmp);
-	if (!key)
+	if (!*key[0])
 		return ; //malloc
 	tmp += ++i;
 	*value = ft_strdup(tmp);
-	if (!value)
+	if (!value[0])
 		return ; //malloc
 	tmp -= i;
 	tmp[i] = '=';
@@ -406,47 +443,6 @@ t_lstenv *ft_get_lstenv(char **env)
 	return (lstenv);
 }
 
-//char *ft_get_env_value(t_lstenv *lstenv, char *key)
-//{
-//	char *value;
-//
-//	value = 0;
-//	while (lstenv)
-//	{
-//		if (!ft_strncmp(key, lstenv->key, ft_strlen(lstenv->key)))
-//		{
-//			value = ft_strdup(lstenv->value); //malloc
-//			break;
-//		}
-//		lstenv = lstenv->next;
-//	}
-//	return (value);
-//}
-//
-//void ft_lstenv_set(char *env, char **key  , char **value)
-//{
-//	char *tmp;
-//	int i;
-//
-//	i = 0;
-//	tmp = ft_strdup(env);
-//	if (!tmp)
-//		return ; //malloc
-//	while (tmp[i] != '=')
-//		i++;
-//	tmp[i] = '\0';
-//	*key =  ft_strdup(tmp);
-//	if (!key)
-//		return ; //malloc
-//	tmp += ++i;
-//	*value = ft_strdup(tmp);
-//	if (!value)
-//		return ; //malloc
-//	tmp -= i;
-//	tmp[i] = '=';
-//	free(tmp);
-//}
-
 char *ft_env(t_lstenv *init, char *res, char parm)
 {
 	static  t_lstenv *env;
@@ -471,6 +467,18 @@ char *ft_env(t_lstenv *init, char *res, char parm)
 		ft_get_env_key_value(res, &key , &value);
 		new = ft_lstenv_new(key,value); //malloc;
 		begin->next = new;
+	}
+	if (parm == ALL)
+	{
+		while (begin)
+		{
+			write(1, begin->key, ft_strlen(key));
+			write(1, "=", 1);
+			write(1, begin->value, ft_strlen(key));
+			write(1,"\n",1);
+			begin = begin->next;
+		}
+		exit(0);
 	}
 	return (0);
 }
@@ -801,23 +809,12 @@ int ft_free_bin(char **save_bin,char **bin, char *check, int ret)
 	return (ret);
 }
 
-void ft_is_bin(t_lstcmds *cmds,char **env)
+
+void ft_my_bin(t_lstcmds *cmds)
 {
-	if (!ft_strncmp(cmds->args[0],"cd",ft_strlen(cmds->args[0])))
-		printf("is cd");
-	else if (!ft_strncmp(cmds->args[0],"echo",ft_strlen(cmds->args[0])))
-		printf("is echo");
-	else if (!ft_strncmp(cmds->args[0],"pwd",ft_strlen(cmds->args[0])))
-		printf("is pwd");
-	else if (!ft_strncmp(cmds->args[0],"export",ft_strlen(cmds->args[0])))
-		printf("is export");
-	else if (!ft_strncmp(cmds->args[0],"unset",ft_strlen(cmds->args[0])))
-		printf("is unset");
-	else if (!ft_strncmp(cmds->args[0],"env",ft_strlen(cmds->args[0])))
-		printf("is env");
-	else if (!ft_strncmp(cmds->args[0],"exit",ft_strlen(cmds->args[0])))
-		printf("is exit");
-	execve(cmds->args[0],cmds->args,env);
+	if (ft_strncmp(cmds->args[0],"unset", ft_strlen(cmds->args[0]))
+	|| ft_strncmp(cmds->args[0],"UNSET", ft_strlen(cmds->args[0])))
+		ft_errno(ft_unset(cmds->args), SET);
 }
 
 int ft_check_run(char *s,t_lstcmds *cmds)
@@ -894,6 +891,8 @@ int ft_get_bin(t_lstcmds *cmds, char **bins)
 	if (prev)
 		if (prev->token == TOKEN_R_D_OUT || prev->token == TOKEN_R_OUT
 		|| prev->token == TOKEN_R_IN)
+		return (1);
+	if (ft_check_my_bin(cmds->args[0]))
 		return (1);
 	if (!ft_strncmp("./", cmds->args[0],2)
 		|| ft_strchr(cmds->args[0],'/'))
@@ -1136,6 +1135,8 @@ void ft_fork_command(t_lstcmds *cmd, t_lstcmds *cmds,t_lstcmds *prev,char **env)
 	if (!pid)
 	{
 		ft_dup2(cmds,prev);
+		if (!ft_strncmp(cmds->args[0], "env", ft_strlen(cmds->args[0])))
+			ft_env(0,0,ALL);
 		execve(cmd->args[0],cmd->args,env);
 		exit(0);
 	}
@@ -1148,6 +1149,8 @@ int ft_is_fork(t_lstcmds *cmds)
 {
 	t_lstcmds *prev;
 	prev = cmds->prev;
+	if (cmds->error == 0)
+		return (3);
 	if (cmds->token == TOKEN_R_IN || cmds->error < 0)
 		return (0);
 	if (prev)
@@ -1241,17 +1244,21 @@ void ft_run_command(t_lstcmds *cmds,char **env)
 		ft_open_pipe(cmds,prev);
 		if (ft_is_fork(cmds) == 1)
 			ft_fork_command(cmds,cmds,prev,env);
-		if (ft_is_fork(cmds) == 2)
+		else if (ft_is_fork(cmds) == 2)
 		{
 			ft_run_r_in(cmds,prev);
 			ft_fork_command(prev, cmds, prev, env);
 		}
+		else if (ft_is_fork(cmds) == 3)
+			ft_my_bin(cmds);
 		if (ft_is_r_out(prev))
 			ft_run_r_out(prev->fds[0],cmds->args[0], cmds->args, prev->token);
 		ft_close_pipe(cmds,prev);
 		cmds = cmds->next;
 	}
 }
+
+
 
 int ft_is_env_key(char *key)
 {
@@ -1266,28 +1273,7 @@ int ft_is_env_key(char *key)
 	return (1);
 }
 
-int ft_unset(char **args)
-{
-	int i;
-	int ret;
 
-	ret = 0;
-	i = 1;
-	while (args[i])
-	{
-		if (!ft_is_env_key(args[i]))
-		{
-			ft_put_error(MSG_ERR_UNSET);
-			ft_put_error(args[i]);
-			ft_put_error(MSG_ERR_NOT_VALID_ID);
-			ret = 1;
-		}
-		else
-			ft_env(0,args[i],UNSET);
-		i++;
-	}
-	return(ret);
-}
 
 void ft_parse(char **line,char **env)
 {
