@@ -83,7 +83,7 @@ typedef struct	s_lstenv
 
 
 char **ft_get_mas(int count);
-int ft_check_my_bin(char *s);
+int ft_is_no_fork(char *s);
 int ft_unset(char **args);
 void ft_put_error(char *s);
 int ft_errno(int n, char f);

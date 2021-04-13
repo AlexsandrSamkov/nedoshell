@@ -1,7 +1,8 @@
 #include "../includes/minishell.h"
-char **ft_get_mas(int count)
+
+char	**ft_get_mas(int count)
 {
-	char **res;
+	char	**res;
 
 	res = malloc(sizeof(char *) * (count + 1));
 	if (!res)
@@ -9,16 +10,14 @@ char **ft_get_mas(int count)
 	return (res);
 }
 
-int ft_check_my_bin(char *s)
+int ft_is_no_fork(char *s)
 {
 	if (!s)
 		return (0);
-	if (!ft_strncmp("unset",s, ft_strlen(s))
-	|| !ft_strncmp("UNSET",s, ft_strlen(s))
-	|| !ft_strncmp("export",s, ft_strlen(s))
-	|| !ft_strncmp("EXPORT",s, ft_strlen(s))
-	|| !ft_strncmp("env",s, ft_strlen(s))
-	|| !ft_strncmp("ENV",s, ft_strlen(s)))
+	if ((!ft_strncmp("unset",s , ft_strlen(s)) && ft_strlen(s) == 5)
+	|| (!ft_strncmp("UNSET",s , ft_strlen(s)) && ft_strlen(s) == 5)
+	|| (!ft_strncmp("export",s, ft_strlen(s)) && ft_strlen(s) == 6)
+	|| (!ft_strncmp("EXPORT",s, ft_strlen(s)) && ft_strlen(s) == 6))
 		return (1);
 	return (0);
 }
@@ -64,8 +63,6 @@ int ft_errno(int n, char f)
 		err = n;
 	return (err);
 }
-
-
 
 void ft_check_str_fatal(char *str)
 {
@@ -187,7 +184,7 @@ int ft_switch_slash(t_spec_chr *spec,char c)
 {
 	if (spec->slash == 1)
 		return(spec->slash = 0);
-	if (spec->quotes || spec->quote)
+	if (spec->quote)
 		return (0);
 	if (c == '\\')
 		return (spec->slash = 1);
@@ -236,8 +233,6 @@ int ft_check_spec(t_spec_chr *spec)
 	return (1);
 }
 
-
-
 int ft_count_args_spec(char *s)
 {
 	int count;
@@ -281,7 +276,7 @@ void ft_del_spec(char **s)
 		debug = s[0][j];
 		if (!((s[0][j] == '\"' && !spec.quote && !spec.slash)
 		|| (s[0][j] == '\'' && !spec.quotes && !spec.slash)
-		|| (s[0][j] == '\\' && !spec.quotes && !spec.quote && !spec.slash)))
+		|| (s[0][j] == '\\' && !spec.quote && !spec.slash)))
 			res[i++] = s[0][j];
 		ft_switch_slash(&spec,s[0][j]);
 	 		j++;
@@ -290,7 +285,6 @@ void ft_del_spec(char **s)
 	ft_free_str(s);
 	*s = res;
 }
-
 
 t_lstenv *ft_lstenv_new(char *key, char *value)
 {
@@ -343,7 +337,7 @@ char *ft_lstenv_del_key(t_lstenv **env, char *key)
 {
 	t_lstenv *begin;
 	t_lstenv *tmp;
-
+	t_lstenv *del;
 	begin = *env;
 	tmp = 0;
 	if (!ft_strncmp(begin->key, key, ft_strlen(begin->key))
@@ -357,11 +351,9 @@ char *ft_lstenv_del_key(t_lstenv **env, char *key)
 		if (!ft_strncmp(begin->key, key, ft_strlen(begin->key))
 		&& ft_strlen(begin->key) == ft_strlen(key))
 		{
-			if (!tmp)
-				*env = begin->next;
-			else
-				tmp = begin->next;
-			ft_lstenv_free(&begin);
+			del = begin;
+			tmp->next = begin->next;
+			ft_lstenv_free(&del);
 			return (0) ;
 		}
 		tmp = begin;
@@ -383,7 +375,6 @@ char *ft_lst_get_env(t_lstenv *env, char *s)
 	}
 	return (res);
 }
-
 
 void ft_lstenv_del_all(t_lstenv **lstenv)
 {
@@ -472,9 +463,9 @@ char *ft_env(t_lstenv *init, char *res, char parm)
 	{
 		while (begin)
 		{
-			write(1, begin->key, ft_strlen(key));
+			write(1, begin->key, (int)ft_strlen(begin->key));
 			write(1, "=", 1);
-			write(1, begin->value, ft_strlen(key));
+			write(1, begin->value, (int)ft_strlen(begin->value));
 			write(1,"\n",1);
 			begin = begin->next;
 		}
@@ -482,7 +473,6 @@ char *ft_env(t_lstenv *init, char *res, char parm)
 	}
 	return (0);
 }
-
 
 char *ft_del_str_from_str_by_index(char *s, int start, int end)
 {
@@ -539,18 +529,59 @@ char *ft_strdup_to_index(char *s, int start, int end)
 	return (res);
 }
 
+int  ft_nbrlen(long n)
+{
+	int i;
+	i = 1;
+	while (n >= 10)
+	{
+		n /= 10;
+		i++;
+	}
+	return (i);
+}
+
+void	ft_putnbr(char *s,int *i, long nbr, char *base)
+{
+	if (nbr >= 10)
+		ft_putnbr(s, i, nbr / 10,  base);
+	s[(*i)++] = base[nbr % 10];
+}
+
+char *ft_int_to_str(int n)
+{
+	char *res;
+	int len;
+	int i;
+
+	i = 0;
+	len = ft_nbrlen(n);
+	res = malloc(len + 1); //malloc
+	ft_putnbr(res, &i, n,"0123456789");
+	res[len] = '\0';
+	return (res);
+}
+
 char *ft_del_env_to_str(char **s, int i)
 {
 	char *value;
 	char *tmp;
 	int j;
+	int get_err;
 
+	get_err = 0;
 	j = i + 1;
-	while (ft_isalpha(s[0][j]) || ft_isdigit(s[0][j]))
-		j++;
+	if (s[0][j] == '?')
+		get_err = j++;
+	else
+		while (ft_isalpha(s[0][j]) || ft_isdigit(s[0][j]))
+			j++;
 	value = ft_strdup_to_index(*s,i + 1,j);
 	tmp = value;
-	value = ft_env(0, value, GET);
+	if (get_err)
+		value = ft_int_to_str(ft_errno(0,GET));
+	else
+		value = ft_env(0, value, GET);
 	ft_free_str(&tmp);
 	tmp = *s;
 	*s = ft_del_str_from_str_by_index(*s, i, j);
@@ -594,6 +625,7 @@ char *ft_strjoin_index(char *s1, char *s2, int *start)
 	return (res);
 }
 
+
 void ft_insert_env_to_args(char **s)
 {
 	int i;
@@ -610,6 +642,7 @@ void ft_insert_env_to_args(char **s)
 		if (s[0][i] == '$' && !spec.quote && !spec.slash)
 		{
 			value = ft_del_env_to_str(s, i);
+
 			if (value)
 			{
 				tmp = *s;
@@ -619,12 +652,11 @@ void ft_insert_env_to_args(char **s)
 			}
 			continue ;
 		}
+
 		ft_switch_slash(&spec, s[0][i]);
 		i++;
 	}
 }
-
-
 
 char *ft_get_args_val(char *line, int start, int end)
 {
@@ -809,11 +841,13 @@ int ft_free_bin(char **save_bin,char **bin, char *check, int ret)
 	return (ret);
 }
 
-
 void ft_my_bin(t_lstcmds *cmds)
 {
 	if (ft_strncmp(cmds->args[0],"unset", ft_strlen(cmds->args[0]))
 	|| ft_strncmp(cmds->args[0],"UNSET", ft_strlen(cmds->args[0])))
+		ft_errno(ft_unset(cmds->args), SET);
+	if (ft_strncmp(cmds->args[0],"env", ft_strlen(cmds->args[0]))
+		|| ft_strncmp(cmds->args[0],"ENV", ft_strlen(cmds->args[0])))
 		ft_errno(ft_unset(cmds->args), SET);
 }
 
@@ -892,15 +926,17 @@ int ft_get_bin(t_lstcmds *cmds, char **bins)
 		if (prev->token == TOKEN_R_D_OUT || prev->token == TOKEN_R_OUT
 		|| prev->token == TOKEN_R_IN)
 		return (1);
-	if (ft_check_my_bin(cmds->args[0]))
-		return (1);
+	if (ft_is_no_fork(cmds->args[0]))
+		return (cmds->error = 2);
+	if (!ft_strncmp("env",cmds->args[0], ft_strlen("env"))
+	&& ft_strlen(cmds->args[0]) == 3)
+		return (cmds->error = 3);
 	if (!ft_strncmp("./", cmds->args[0],2)
 		|| ft_strchr(cmds->args[0],'/'))
 		return (ft_check_run(cmds->args[0], cmds));
 	cmds->error  = ft_check_bins(&cmds->args[0],bins);
 	return (0);
 }
-
 
 int ft_count_mass(char **mas)
 {
@@ -986,7 +1022,7 @@ int   ft_check(t_lstcmds *cmds,char **env)
 	while (begin)
 	{
 		ft_is_error_syntax(begin);
-		if (begin->args[0])
+		if (begin->args && begin->args[0])
 			ft_get_bin(begin,bins);
 		begin = begin->next;
 	}
@@ -1027,8 +1063,6 @@ void ft_strjoin_and_free(char **s1, char *s2)
 	*s1 = ft_strjoin(*s1,s2);
 	ft_free_str(&tmp);
 }
-
-
 
 char *ft_run_r_in(t_lstcmds *cmds,t_lstcmds *prev)
 {
@@ -1142,6 +1176,7 @@ void ft_fork_command(t_lstcmds *cmd, t_lstcmds *cmds,t_lstcmds *prev,char **env)
 	}
 	waitpid(pid,&status,0);
 	cmds->status = status;
+	ft_errno(status,SET);
 	//printf("status = %d\n",status);
 }
 
@@ -1149,7 +1184,7 @@ int ft_is_fork(t_lstcmds *cmds)
 {
 	t_lstcmds *prev;
 	prev = cmds->prev;
-	if (cmds->error == 0)
+	if (cmds->error == 2)
 		return (3);
 	if (cmds->token == TOKEN_R_IN || cmds->error < 0)
 		return (0);
@@ -1258,8 +1293,6 @@ void ft_run_command(t_lstcmds *cmds,char **env)
 	}
 }
 
-
-
 int ft_is_env_key(char *key)
 {
 	int i;
@@ -1273,46 +1306,72 @@ int ft_is_env_key(char *key)
 	return (1);
 }
 
-
-
 void ft_parse(char **line,char **env)
 {
 	t_lstcmds *cmds;
 	char *str_token;
 	int token;
 	int i;
-	//char *tmp;
+	token = -1;
 	cmds = 0;
 	i = 0;
 	//(void)env;
-	ft_insert_env_to_args(line);
+
 	while (line[0][i])
 	{
 		ft_get_token(*line, &i, &str_token, &token);
+		ft_insert_env_to_args(&str_token);
 		ft_lstcmdsadd_back(&cmds,ft_lstcmdsnew(ft_get_args(str_token),
 		token));
+		if (token == TOKEN_BIN)
+		{
+//			t_lstcmds *begin;
+//			begin = cmds;
+//			int j;
+//			j = 0;
+//			while (begin)
+//			{
+//				printf("token = %d error = %d || ",begin->token,begin->error);
+//				if(begin->args)
+//					while (begin->args[j])
+//					{
+//						printf("%s|", begin->args[j]);
+//						j++;
+//					}
+//				j = 0;
+//				printf("\n");
+//				begin = begin->next;
+//			}
+			ft_check(cmds,env);
+			ft_run_command(cmds,env);
+			ft_lstcmdsdel(&cmds);
+		}
 		ft_free_str(&str_token);
 	}
-	ft_check(cmds,env);
-	t_lstcmds *begin;
-	begin = cmds;
-	int j;
-	j = 0;
-	while (begin)
+
+//	t_lstcmds *begin;
+//	begin = cmds;
+//	int j;
+//	j = 0;
+//	while (begin)
+//	{
+//		printf("token = %d error = %d || ",begin->token,begin->error);
+//		if(begin->args)
+//		while (begin->args[j])
+//		{
+//			printf("%s|", begin->args[j]);
+//			j++;
+//		}
+//		j = 0;
+//		printf("\n");
+//		begin = begin->next;
+//	}
+	if (cmds)
 	{
-		printf("token = %d error = %d || ",begin->token,begin->error);
-		if(begin->args)
-		while (begin->args[j])
-		{
-			printf("%s|", begin->args[j]);
-			j++;
-		}
-		j = 0;
-		printf("\n");
-		begin = begin->next;
+		ft_check(cmds,env);
+		ft_run_command(cmds, env);
+		ft_lstcmdsdel(&cmds);
 	}
-	ft_run_command(cmds,env);
-	ft_lstcmdsdel(&cmds);
 }
 
 int main(int argc,char *argv[],char *env[])
@@ -1326,6 +1385,7 @@ int main(int argc,char *argv[],char *env[])
 	t_lstenv *lstenv;
 	lstenv = ft_get_lstenv(env);
 	ft_env(ft_get_lstenv(env), 0,INIT);
+
 	command = 0;
 	tmp = 0;
 	buf[1] = '\0';
@@ -1388,10 +1448,6 @@ int main(int argc,char *argv[],char *env[])
 //	(void )argv;
 //	(void )argc;
 //	(void )env;
-//	char *s = "\" ''\"";
-//	printf("%d\n",ft_count_args_spec(s));
+//
+//	printf("%s\n", ft_int_to_str(0));
 //}
-
-
-
-
