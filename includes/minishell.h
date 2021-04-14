@@ -30,9 +30,10 @@
 
 # define SET 'C'
 # define GET 'G'
-# define INIT 'C'
+# define INIT 'I'
 # define UNSET 'U'
 # define ALL 'A'
+# define GET_ENV 'E'
 
 # define ERR_NO_FILE -1
 # define ERR_NO_PERM -2
@@ -88,7 +89,7 @@ int ft_unset(char **args);
 void ft_put_error(char *s);
 int ft_errno(int n, char f);
 void ft_check_str_fatal(char *str);
-void ft_free_str(char **s);
+void *ft_free(void *s);
 void ft_free_mas(char ***mas);
 int ft_switch_quotes(int *quote,int *quotes,int slash, char c);
 t_lstcmds	*ft_lstcmdslast(t_lstcmds *lst);
@@ -110,7 +111,7 @@ char *ft_lst_get_env(t_lstenv *env, char *s);
 void ft_lstenv_del_all(t_lstenv **lstenv);
 void ft_get_env_key_value(char *env, char **key  , char **value);
 t_lstenv *ft_get_lstenv(char **env);
-char *ft_env(t_lstenv *init, char *res, char parm);
+char *ft_env(t_lstenv **init, char *res, char parm);
 char *ft_del_str_from_str_by_index(char *s, int start, int end);
 char *ft_strdup_to_index(char *s, int start, int end);
 char *ft_del_env_to_str(char **s, int i);
@@ -141,6 +142,7 @@ void ft_dup2(t_lstcmds *cmds, t_lstcmds *prev);
 void ft_fork_command(t_lstcmds *cmd, t_lstcmds *cmds,t_lstcmds *prev,char
 **env);
 int ft_is_fork(t_lstcmds *cmds);
+char *set_new_env(t_lstenv *env, char *name, int size);
 void ft_open_pipe(t_lstcmds *cmds, t_lstcmds *prev);
 void ft_close_pipe(t_lstcmds *cmds, t_lstcmds *prev);
 int ft_is_r_out(t_lstcmds *prev);
@@ -149,5 +151,7 @@ void ft_run_error(t_lstcmds *cmds);
 void ft_run_command(t_lstcmds *cmds,char **env);
 int ft_is_env_key(char *key);
 void ft_parse(char **line,char **env);
-
+int ft_is_export(char *s);
+int ft_export(char *args[]);
+int		ft_cd(char **argsv);
 #endif

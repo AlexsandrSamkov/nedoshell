@@ -10,6 +10,7 @@ char	**ft_get_mas(int count)
 	return (res);
 }
 
+
 int ft_is_no_fork(char *s)
 {
 	if (!s)
@@ -17,7 +18,9 @@ int ft_is_no_fork(char *s)
 	if ((!ft_strncmp("unset",s , ft_strlen(s)) && ft_strlen(s) == 5)
 	|| (!ft_strncmp("UNSET",s , ft_strlen(s)) && ft_strlen(s) == 5)
 	|| (!ft_strncmp("export",s, ft_strlen(s)) && ft_strlen(s) == 6)
-	|| (!ft_strncmp("EXPORT",s, ft_strlen(s)) && ft_strlen(s) == 6))
+	|| (!ft_strncmp("EXPORT",s, ft_strlen(s)) && ft_strlen(s) == 6)
+    || (!ft_strncmp("cd",s, ft_strlen(s)) && ft_strlen(s) == 2)
+    || (!ft_strncmp("CD",s, ft_strlen(s)) && ft_strlen(s) == 2))
 		return (1);
 	return (0);
 }
@@ -36,7 +39,9 @@ int ft_unset(char **args)
 			ft_put_error(MSG_ERR_UNSET);
 			ft_put_error(args[i]);
 			ft_put_error(MSG_ERR_NOT_VALID_ID);
+			ft_put_error("\n");
 			ret = 1;
+			break;
 		}
 		else
 			ft_env(0,args[i],UNSET);
@@ -70,13 +75,14 @@ void ft_check_str_fatal(char *str)
 		exit(EXIT_FAILURE);
 }
 
-void ft_free_str(char **s)
+void *ft_free(void *s)
 {
-	if (*s)
+	if (s)
 	{
-		free(*s);
-		*s = 0;
+		free(s);
+		s = 0;
 	}
+	return (0);
 }
 
 void ft_free_mas(char ***mas)
@@ -87,7 +93,7 @@ void ft_free_mas(char ***mas)
 	tmp = *mas;
 	while (*tmp)
 	{
-		ft_free_str(tmp);
+		*tmp = (char *)ft_free(*tmp);
 		tmp++;
 	}
 	free(*mas);
@@ -282,7 +288,7 @@ void ft_del_spec(char **s)
 	 		j++;
 	}
 	res[i] = '\0';
-	ft_free_str(s);
+	*s = ft_free(*s);
 	*s = res;
 }
 
@@ -327,8 +333,8 @@ void ft_lstenv_free(t_lstenv **del)
 	t_lstenv *tmp;
 
 	tmp = *del;
-	ft_free_str(&tmp->key);
-	ft_free_str(&tmp->value);
+	tmp->key = ft_free(tmp->key);
+	tmp->value = ft_free(tmp->value);
 	free(*del);
 	*del = 0;
 }
@@ -369,7 +375,8 @@ char *ft_lst_get_env(t_lstenv *env, char *s)
 	res = 0;
 	while (env)
 	{
-		if (!ft_strncmp(s,env->key, ft_strlen(env->key)))
+		if (!ft_strncmp(s,env->key, ft_strlen(s))
+		&& ft_strlen(env->key) == ft_strlen(s))//FIX ERROR
 			res = ft_strdup(env->value); // malloc
 		env = env->next;
 	}
@@ -434,7 +441,7 @@ t_lstenv *ft_get_lstenv(char **env)
 	return (lstenv);
 }
 
-char *ft_env(t_lstenv *init, char *res, char parm)
+char *ft_env(t_lstenv **init, char *res, char parm)
 {
 	static  t_lstenv *env;
 	t_lstenv *begin;
@@ -443,9 +450,11 @@ char *ft_env(t_lstenv *init, char *res, char parm)
 	char *value;
 	if (parm == INIT)
 	{
-		env = init;
+		env = *init;
 		return (0);
 	}
+	if (parm == GET_ENV)
+	    *init = env;
 	if (parm == GET)
 		return (ft_lst_get_env(env,res));
 	if (parm == UNSET)
@@ -582,10 +591,10 @@ char *ft_del_env_to_str(char **s, int i)
 		value = ft_int_to_str(ft_errno(0,GET));
 	else
 		value = ft_env(0, value, GET);
-	ft_free_str(&tmp);
+	tmp = ft_free(tmp);
 	tmp = *s;
 	*s = ft_del_str_from_str_by_index(*s, i, j);
-	ft_free_str(&tmp);
+	tmp = ft_free(tmp);
 	return (value);
 }
 
@@ -647,8 +656,8 @@ void ft_insert_env_to_args(char **s)
 			{
 				tmp = *s;
 				*s = ft_strjoin_index(*s,value,&i);
-				ft_free_str(&tmp);
-				ft_free_str(&value);
+				tmp = ft_free(tmp);
+				value = ft_free(value);
 			}
 			continue ;
 		}
@@ -835,20 +844,25 @@ char **ft_get_path(char **env)
 
 int ft_free_bin(char **save_bin,char **bin, char *check, int ret)
 {
-	ft_free_str(save_bin);
-	ft_free_str(bin);
+	*save_bin = ft_free(*save_bin);
+	*bin = ft_free(*bin);
 	*bin = check;
 	return (ret);
 }
 
 void ft_my_bin(t_lstcmds *cmds)
 {
-	if (ft_strncmp(cmds->args[0],"unset", ft_strlen(cmds->args[0]))
-	|| ft_strncmp(cmds->args[0],"UNSET", ft_strlen(cmds->args[0])))
-		ft_errno(ft_unset(cmds->args), SET);
-	if (ft_strncmp(cmds->args[0],"env", ft_strlen(cmds->args[0]))
-		|| ft_strncmp(cmds->args[0],"ENV", ft_strlen(cmds->args[0])))
-		ft_errno(ft_unset(cmds->args), SET);
+    t_lstenv  *envs;
+    ft_env(&envs,0,GET_ENV);
+ 	if (!ft_strncmp(cmds->args[0],"unset", 6)
+ 	|| !ft_strncmp(cmds->args[0],"UNSET", 6))
+ 		ft_errno(ft_unset(cmds->args), SET);
+ 	if (!ft_strncmp(cmds->args[0],"env", 4)
+		|| ft_strncmp(cmds->args[0],"ENV", 4))
+		ft_errno(ft_export(cmds->args), SET);
+    if (!ft_strncmp(cmds->args[0],"cd", 3)
+        || !ft_strncmp(cmds->args[0],"CD", 3))
+      ft_cd(cmds->args);
 }
 
 int ft_check_run(char *s,t_lstcmds *cmds)
@@ -907,13 +921,13 @@ int ft_check_bins(char **bin, char **bins)
 		ft_check_str_fatal(check);
 		ret = ft_check_bin(check);
 		if (!ret)
-			ft_free_str(&check);
+			check = ft_free(check);
 		else
 			return (ft_free_bin(&save_bin,bin,check,ret));
 		check = save_bin;
 		i++;
 	}
-	ft_free_str(&save_bin);
+	save_bin = ft_free(save_bin);
 	return (ERR_N0_COMMAND);
 }
 
@@ -928,10 +942,16 @@ int ft_get_bin(t_lstcmds *cmds, char **bins)
 		return (1);
 	if (ft_is_no_fork(cmds->args[0]))
 		return (cmds->error = 2);
-	if (!ft_strncmp("env",cmds->args[0], ft_strlen("env"))
+	if (!ft_strncmp("env",cmds->args[0], 4)
 	&& ft_strlen(cmds->args[0]) == 3)
 		return (cmds->error = 3);
-	if (!ft_strncmp("./", cmds->args[0],2)
+    if (!ft_strncmp("pwd",cmds->args[0], 4)
+        && ft_strlen(cmds->args[0]) == 3)
+        return (cmds->error = 3);
+    if (!ft_strncmp("echo",cmds->args[0], 5)
+        && ft_strlen(cmds->args[0]) == 3)
+        return (cmds->error = 3);
+	if (!ft_strncmp("./", cmds->args[0],3)
 		|| ft_strchr(cmds->args[0],'/'))
 		return (ft_check_run(cmds->args[0], cmds));
 	cmds->error  = ft_check_bins(&cmds->args[0],bins);
@@ -1045,7 +1065,7 @@ int ft_get_pipe_data(int fd, char **data)
 		tmp = *data;
 		if (!(*data = ft_strjoin(*data,buf)))
 			return (-1);
-		ft_free_str(&tmp);
+		tmp = ft_free(tmp);
 		bytes += byte;
 
 	}
@@ -1061,7 +1081,7 @@ void ft_strjoin_and_free(char **s1, char *s2)
 	tmp = 0;
 	tmp = *s1;
 	*s1 = ft_strjoin(*s1,s2);
-	ft_free_str(&tmp);
+	tmp = ft_free(tmp);
 }
 
 char *ft_run_r_in(t_lstcmds *cmds,t_lstcmds *prev)
@@ -1161,6 +1181,52 @@ void ft_dup2(t_lstcmds *cmds, t_lstcmds *prev)
 			dup2(prev->fds[0],0);
 }
 
+int	ft_pwd(void)
+{
+    char *pwd;
+
+    pwd = malloc(4096);
+    if (!pwd)
+        return (-1); // malloc
+    if (getcwd(pwd, 4096))
+    {
+        ft_putendl_fd(pwd, 1); // ошибка врайта
+        pwd = ft_free(pwd);
+        exit(0);
+    }
+    else
+    {
+        pwd = ft_free(pwd);
+        exit(1);
+    }
+}
+
+void	ft_echo(char **argv)
+{
+    int i;
+    int flag;
+    int argc;
+    i = 1;
+    flag = 0;
+    argc = ft_count_mass(argv);
+    if (argc > 1) //ошибка и защиты проверить
+    {
+        if (!ft_strncmp(argv[i], "-n",3) && ft_strlen((argv[i])) == 2)
+            flag = 1;
+        i++;
+        while (argv[i])
+        {
+            ft_putendl_fd(argv[i], 1);
+            if (argv[i+1] && argv[i][0] != '\0')
+                write(1," ", 1);
+            i++;
+        }
+    }
+    if (flag == 0)
+        write(1, "\n", 1);
+   exit(0);
+}
+
 void ft_fork_command(t_lstcmds *cmd, t_lstcmds *cmds,t_lstcmds *prev,char **env)
 {
 	pid_t  pid;
@@ -1169,14 +1235,22 @@ void ft_fork_command(t_lstcmds *cmd, t_lstcmds *cmds,t_lstcmds *prev,char **env)
 	if (!pid)
 	{
 		ft_dup2(cmds,prev);
-		if (!ft_strncmp(cmds->args[0], "env", ft_strlen(cmds->args[0])))
+		if (!ft_strncmp(cmds->args[0], "env", 4))
 			ft_env(0,0,ALL);
+        else if (!ft_strncmp(cmds->args[0], "pwd", 4))
+            ft_pwd();
+        else if (!ft_strncmp(cmds->args[0], "echo",5))
+            ft_echo(cmds->args);
+        else
 		execve(cmd->args[0],cmd->args,env);
 		exit(0);
 	}
 	waitpid(pid,&status,0);
 	cmds->status = status;
-	ft_errno(status,SET);
+	if (status > 0)
+	ft_errno(1,SET);
+	else if (status == 0)
+		ft_errno(0,SET);
 	//printf("status = %d\n",status);
 }
 
@@ -1293,6 +1367,189 @@ void ft_run_command(t_lstcmds *cmds,char **env)
 	}
 }
 
+# include <limits.h>
+# include <errno.h>
+# define ERROR 1
+# define SUCCESS 0
+# define STDERR 2
+# define BUFF_SIZE 4096
+# include <string.h>
+
+static void		print_error(char **args)
+{
+    ft_putstr_fd("cd: ", 2);
+    if (args[2])
+        ft_putstr_fd("string not in pwd: ", 2);
+    else
+    {
+        ft_putstr_fd(strerror(errno), 2);
+        ft_putstr_fd(": ", 2);
+    }
+    ft_putendl_fd(args[1], 2);
+}
+
+//static char		*get_env_path(t_lstenv *env, const char *var, size_t len)
+//{
+//    char	*oldpwd;
+//    int		i;
+//    int		j;
+//    int		s_alloc;
+//
+//    while (env && env->next != NULL)
+//    {
+//  //      printf("%s\n",var);
+//   //     printf("%zu\n",len);
+//        if (ft_strncmp(env->value, var, len) == 0)
+//        {
+//      //      write(1,"kdkdk\n",6);
+//        //    printf("%s\n",env->key);
+//            s_alloc = ft_strlen(env->value)- len;
+//     //       printf("%d\n",s_alloc);
+//            if (!(oldpwd = malloc(sizeof(char) * s_alloc + 1)))
+//                return (NULL);
+//            i = 0;
+//            j = 0;
+//        //    write(1,"kdkdk\n",6);
+//            while (env->value[i++])
+//            {
+//                if (i > (int)len)
+//                    oldpwd[j++] = env->value[i];
+//            }
+//            i = 0;
+//            printf("%s\n",oldpwd);
+//            while (env->value[i++])
+//            {
+//                if (i > (int)len)
+//                    oldpwd[j++] = env->value[i];
+//            }
+//            oldpwd[j] = '\0';
+//            printf("%s\n",oldpwd);
+//            return (oldpwd);
+//        }
+//        env = env->next;
+//    }
+//    return (NULL);
+//}
+
+int			env_add(const char *value, t_lstenv *env)
+{
+    t_lstenv	*new;
+    t_lstenv	*tmp;
+
+    if (env && env->value == NULL)
+    {
+        env->value = ft_strdup(value);
+        return (SUCCESS);
+    }
+    if (!(new = malloc(sizeof(t_lstenv))))
+        return (-1);
+    new->value = ft_strdup(value);
+    while (env && env->next)
+        env = env->next;
+    tmp = env->next;
+    env->next = new;
+    new->next = tmp;
+    return (SUCCESS);
+}
+
+char		*get_env_name(char *dest, const char *src)
+{
+    int		i;
+
+    i = 0;
+    while (src[i] && src[i] != '=' && ft_strlen(src) < BUFF_SIZE)
+    {
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
+    return (dest);
+}
+int			is_in_env(t_lstenv *env, char *args)
+{
+    char	var_name[BUFF_SIZE];
+    char	env_name[BUFF_SIZE];
+
+    get_env_name(var_name, args);
+    while (env && env->next)
+    {
+        get_env_name(env_name, env->value);
+        if (!ft_strncmp(var_name, env_name, ft_strlen(env_name)) && ft_strlen((var_name)) == ft_strlen(env_name))
+        {
+            env->value = ft_free(env->value);
+            env->value = ft_strdup(args);
+            return (1);
+        }
+        env = env->next;
+    }
+    return (SUCCESS);
+}
+
+static int		update_oldpwd(void)
+{
+    char	cwd[PATH_MAX];
+    char	*oldpwd;
+
+    if (getcwd(cwd, PATH_MAX) == NULL)
+        return (ERROR);
+    if (!(oldpwd = ft_strjoin("OLDPWD=", cwd)))
+        return (ERROR);
+    ft_env(0,oldpwd,SET);
+	oldpwd = ft_free(oldpwd);
+    return (SUCCESS);
+}
+
+static int		go_to_path(int option)
+{
+    int		ret;
+    char	*env_path;
+
+    env_path = NULL;
+    if (option == 0)
+    {
+        update_oldpwd();
+        env_path = ft_env(0,"HOME", GET);// Путь
+                //get_env_path(env, "HOME", 4);
+        if (!env_path)
+            ft_putendl_fd("minishell : cd: HOME not set", STDERR);
+        if (!env_path)
+            return (ERROR);
+    }
+    else if (option == 1)
+    {
+        env_path = ft_env(0,"HOME", GET);//Путь
+                //get_env_path(env, "OLDPWD", 6);
+        if (!env_path)
+            ft_putendl_fd("minishell : cd: OLDPWD not set", STDERR);
+        if (!env_path)
+            return (ERROR);
+        update_oldpwd();
+    }
+    ret = chdir(env_path);
+    env_path = ft_free(env_path);
+    return (ret);
+}
+
+int				ft_cd(char **args)
+{
+    int		cd_ret;
+
+    if (!args[1])
+        return (go_to_path(0));
+    if (!ft_strncmp(args[1], "-",1) && ft_strlen((args[1])) == 1)
+        cd_ret = go_to_path(1);
+    else
+    {
+        update_oldpwd();
+        cd_ret = chdir(args[1]);
+        if (cd_ret < 0)
+            cd_ret *= -1;
+        if (cd_ret != 0)
+            print_error(args);
+    }
+    return (cd_ret);
+}
+
 int ft_is_env_key(char *key)
 {
 	int i;
@@ -1320,33 +1577,13 @@ void ft_parse(char **line,char **env)
 	while (line[0][i])
 	{
 		ft_get_token(*line, &i, &str_token, &token);
+		if (!str_token)
+			str_token = ft_strdup("");
 		ft_insert_env_to_args(&str_token);
 		ft_lstcmdsadd_back(&cmds,ft_lstcmdsnew(ft_get_args(str_token),
 		token));
-		if (token == TOKEN_BIN)
-		{
-//			t_lstcmds *begin;
-//			begin = cmds;
-//			int j;
-//			j = 0;
-//			while (begin)
-//			{
-//				printf("token = %d error = %d || ",begin->token,begin->error);
-//				if(begin->args)
-//					while (begin->args[j])
-//					{
-//						printf("%s|", begin->args[j]);
-//						j++;
-//					}
-//				j = 0;
-//				printf("\n");
-//				begin = begin->next;
-//			}
-			ft_check(cmds,env);
-			ft_run_command(cmds,env);
-			ft_lstcmdsdel(&cmds);
-		}
-		ft_free_str(&str_token);
+        ft_check(cmds,env);
+		str_token = ft_free(str_token);
 	}
 
 //	t_lstcmds *begin;
@@ -1366,12 +1603,55 @@ void ft_parse(char **line,char **env)
 //		printf("\n");
 //		begin = begin->next;
 //	}
-	if (cmds)
+        ft_run_command(cmds,env);
+        ft_lstcmdsdel(&cmds);
+}
+
+int ft_is_export(char *s)
+{
+	int i;
+	int equal;
+	i = 0;
+	equal = 0;
+	while (s[i])
 	{
-		ft_check(cmds,env);
-		ft_run_command(cmds, env);
-		ft_lstcmdsdel(&cmds);
+		if (s[i] == '=')
+		{
+			equal = 1;
+			break;
+		}
+		if (!ft_isalpha(s[i]) && !ft_isdigit(s[i]) && s[i] != '_')
+			return (-1);
+		i++;
 	}
+	if (equal == 0)
+		return (0);
+	if (s[0] == '=')
+		return (-1);
+	return (1);
+}
+
+int ft_export(char *args[])
+{
+	int i;
+	int ret;
+	int check;
+	ret = 0;
+	i = 1;
+	while (args[i])
+	{
+		check = ft_is_export(args[i]);
+		if (check < 0)
+		{
+			ret = 1;
+			ft_put_error(args[i]);
+			ft_put_error(" ОШИБКА\n");
+		}
+		if (check == 1)
+			ft_env(0,args[i],SET);
+		i++;
+	}
+	return (ret);
 }
 
 int main(int argc,char *argv[],char *env[])
@@ -1384,7 +1664,7 @@ int main(int argc,char *argv[],char *env[])
 	char *tmp;
 	t_lstenv *lstenv;
 	lstenv = ft_get_lstenv(env);
-	ft_env(ft_get_lstenv(env), 0,INIT);
+	ft_env(&lstenv, 0,INIT);
 
 	command = 0;
 	tmp = 0;
@@ -1401,53 +1681,17 @@ int main(int argc,char *argv[],char *env[])
 		{
 
 			ft_parse(&command, env);
-			ft_free_str(&command);
+			command = ft_free(command);
 			write(0,"> ",2);
 		}
 		else
 		{
 			tmp = command;
 			command = ft_strjoin(command,buf);
-			ft_free_str(&tmp);
+			tmp = ft_free(tmp);
 		}
 	}
 }
 
 
-//int main (int argc,char **argv,char **env)
-//{
-//	(void)argc;
-//	(void)argv;
-//	int fd1[2];
-//	//int fd2[2];
-////	int fd;
-////	char buf[2];
-//	char *s;
-//	s = 0;
-//	//echo test | grep -e test -e ls < test
-//	char *grep[3];
-//	grep[0] = "/bin/cat";
-//	grep[1] = 0;
-//	grep[2] = 0;
-//	pipe(fd1);
-//
-//	close(fd1[1]);
-//
-//	if (!fork())
-//	{
-//		dup2(fd1[0],0);
-//		execve(grep[0],grep,env);
-//		exit(0);
-//	}
-//	wait(0);
-//
-//}
 
-//int main (int argc, char **argv, char **env)
-//{
-//	(void )argv;
-//	(void )argc;
-//	(void )env;
-//
-//	printf("%s\n", ft_int_to_str(0));
-//}
