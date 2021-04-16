@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strmapi.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
+/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 14:38:34 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/09 15:55:49 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/16 05:31:43 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
 	{
 		i = 0;
 		while (s[i])
-		{
+		{	
 			str[i] = f(i, s[i]);
 			i++;
 		}

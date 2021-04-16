@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
+/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 12:42:52 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/09 16:49:59 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/16 05:52:51 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,4 +120,5 @@ t_list				*ft_lstmap(t_list *lst, \
 					void *(*f)(void *), void (*del)(void *));
 
 int					get_next_line(int fd, char **line);
+
 #endif

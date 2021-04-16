@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.42.fr>          +#+  +:+       +#+        */
+/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/05 18:02:34 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/09 16:03:17 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/16 05:05:11 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,8 @@ static char	*ft_splitword(char const *s, int start, char c)
 
 	i = 0;
 	j = start;
-	while (s[j] != c && s[j] != '\0')
-	{
-		j++;
+	while (s[j] != c && s[j++] != '\0')
 		i++;
-	}
 	str = (char *)malloc(sizeof(char) * (i + 1));
 	if (!str)
 		return (0);
@@ -63,39 +60,51 @@ static char	*ft_splitword(char const *s, int start, char c)
 static char	**ft_splitfree(char **split, size_t j)
 {
 	split[j] = 0;
-	while (*split)
+	if (split)
 	{
-		free(*split);
-		*split = 0;
-		split++;
+		while (*split)
+		{
+			free(*split);
+			*split = 0;
+			split++;
+		}
 	}
 	free(split);
 	split = 0;
 	return (0);
 }
 
+static char	**ft_split_init(char const *s, char c, size_t *i, size_t *j)
+{
+	char	**split;
+
+	*i = 0;
+	*j = 0;
+	split = (char **)malloc(sizeof(char *) * (ft_splitsize(s, c) + 1));
+	return (split);
+}
+
 char	**ft_split(char const *s, char c)
 {
 	char	**split;
 	size_t	i;
-	int		j;
+	size_t	j;
 
-	i = 0;
-	j = -1;
 	if (!s)
 		return (0);
-	split = (char **)malloc(sizeof(char *) * (ft_splitsize(s, c) + 1));
+	split = ft_split_init(s, c, &i, &j);
 	if (!split)
 		return (0);
 	while (i < ft_strlen(s))
 	{
 		if (s[i] != c)
 		{
-			split[++j] = ft_splitword(s, i, c);
-			if (!split[j])
+			split[j] = ft_splitword(s, i, c);
+			if (!split)
 				return (ft_splitfree(split, j));
 			while (s[i] != '\0' && s[i] != c)
 				i++;
+			j++;
 		}
 		i++;
 	}
