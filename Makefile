@@ -8,7 +8,8 @@ SRCS_LIST 		=	main.c cd.c check.c del_spec.c \
 					get_args.c get_bin_utils.c get_token.c insert_env_to_args.c\
 					lstcmds_utils.c lstenv_utils.c my_bin.c parse.c\
 					redirect.c run_utilc.c spec.c utils.c utils_2.c\
-					get_bin_utils_2.c fork.c run.c error_2.c
+					get_bin_utils_2.c fork.c run.c error_2.c\
+
 SRCS			=	$(addprefix $(SRCS_PATH), $(SRCS_LIST))	
 OBJS_LIST		=	$(patsubst %.c, %.o, $(SRCS_LIST))
 OBJS			=	$(addprefix $(OBJS_PATH),$(OBJS_LIST))
@@ -16,9 +17,9 @@ RM				=	rm -rf
 MAKE_LIBFT		=	make -C libs/libft
 
 CC 				=	gcc
-CFLAGS			=	-Wall -Wextra -Werror -I $(HEAD_PATH)
-OFLAGS			=	-Wall -Wextra -Werror -c -I $(HEAD_PATH)
-DFLAGS			=	-Wall -Wextra -Werror -g -fsanitize=address -I $(HEAD_PATH)
+CFLAGS			=	 -Wall -Wextra -Werror -I $(HEAD_PATH)
+OFLAGS			=	 -Wall -Wextra -Werror -c -I $(HEAD_PATH)
+DFLAGS			=	 -g -fsanitize=address -I $(HEAD_PATH)
 LIBFT			= 	libs/libft/libft.a
 #-fsanitize=address
 all: $(NAME) 

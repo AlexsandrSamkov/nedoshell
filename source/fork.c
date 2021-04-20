@@ -68,47 +68,47 @@ int	ft_get_pipe_data(int fd, char **data)
 	return (bytes);
 }
 
-int	ft_run_bin(t_lstcmds *cmds)
+int	ft_run_bin(t_lstcmds *cmds, int is_exit)
 {
+	int ret;
+	int run;
+
+	run = 0;
+	ret = 0;
 	if (!ft_strncmp(cmds->args[0], "env", 4))
 	{
 		ft_env(0, 0, ALL);
-		return (1);
+		ret = 1;
 	}
 	else if (!ft_strncmp(cmds->args[0], "pwd", 4))
 	{
-		ft_pwd();
-		return (1);
+		ret = ft_pwd();
+		run = 1;
 	}
 	else if (!ft_strncmp(cmds->args[0], "echo", 5))
 	{
-		ft_echo(cmds->args);
-		return (1);
+		ret = ft_echo(cmds->args);
+		run = 1;
 	}
-	return (0);
-}
-
-void	ft_fork_command(t_lstcmds *cmd, t_lstcmds *cmds, t_lstcmds *prev)
-{
-	int			status;
-	char		**env_mass;
-	t_lstenv	*env;
-
-	g_pid = fork();
-	ft_env(&env, 0, GET_ENV);
-	env_mass = ft_get_env_mass(env);
-	if (!g_pid)
+	else if (!ft_strncmp(cmds->args[0],"unset", 6))
 	{
-		ft_dup2(cmds, prev);
-		if (!ft_run_bin(cmds))
-			execve(cmd->args[0], cmd->args, env_mass);
-		exit(0);
+		ret = ft_unset(cmds->args);
+		run = 1;
 	}
-	waitpid(g_pid, &status, 0);
-	ft_free_mas(&env_mass);
-	cmds->error = status;
-	if (status > 0)
-		ft_errno(1, SET);
-	else if (status == 0)
-		ft_errno(0, SET);
+	else if (!ft_strncmp(cmds->args[0],"export", 7))
+	{
+		ret = ft_export(cmds->args);
+		run = 1;
+	}
+	else if ((!ft_strncmp(cmds->args[0],"cd", 3)))
+	{
+		ret = ft_cd(cmds->args);
+		run = 1;
+	}
+	if (is_exit && run)
+		exit(ret);
+	if (run)
+		ft_errno(ret,SET);
+	return (run);
 }
+

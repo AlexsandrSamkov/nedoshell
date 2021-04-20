@@ -30,28 +30,32 @@ int	ft_check_error_syntax(t_lstcmds *cmds)
 	return (0);
 }
 
-void	ft_run_error_2(t_lstcmds *cmds)
+int	ft_run_error_2(t_lstcmds *cmds)
 {
 	if (cmds->error == ERR_NO_PERM)
 	{
 		ft_put_error(cmds->args[0]);
 		ft_put_error(MSG_ERR_NO_PERM);
 		ft_errno(126, SET);
+		return (1);
 	}
 	if (cmds->error == ERR_NO_FILE)
 	{
 		ft_put_error(cmds->args[0]);
 		ft_put_error(MSG_ERR_NO_FILE);
 		ft_errno(127, SET);
+		return (1);
 	}
 	if (cmds->error == ERR_FILE_NAME_ARGS)
 	{
 		ft_put_error(MSG_ERR_FILE_NAME_ARGS);
 		ft_errno(127, SET);
+		return (1);
 	}
+	return (0);
 }
 
-void	ft_run_error(t_lstcmds *cmds)
+int	ft_run_error(t_lstcmds *cmds)
 {
 	if (cmds->error == ERR_N0_COMMAND)
 	{
@@ -59,12 +63,14 @@ void	ft_run_error(t_lstcmds *cmds)
 		ft_put_error(cmds->args[0]);
 		ft_put_error("\n");
 		ft_errno(127, SET);
+		return (1);
 	}
 	if (cmds->error == ERR_IS_DIRECT)
 	{
 		ft_put_error(cmds->args[0]);
 		ft_put_error(MSG_ERR_IS_DIRECT);
 		ft_errno(126, SET);
+		return (1);
 	}
-	ft_run_error_2(cmds);
+	return(ft_run_error_2(cmds));
 }

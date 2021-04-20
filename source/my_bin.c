@@ -23,16 +23,16 @@ int	ft_pwd(void)
 	{
 		ft_putendl_fd(pwd, 1); // ошибка врайта
 		pwd = ft_free(pwd);
-		exit(0);
+		return (0);
 	}
 	else
 	{
 		pwd = ft_free(pwd);
-		exit(1);
+		return (1);
 	}
 }
 
-void	ft_echo(char **argv)
+int	ft_echo(char **argv)
 {
 	int		i;
 	int		flag;
@@ -56,7 +56,7 @@ void	ft_echo(char **argv)
 	}
 	if (flag == 0)
 		write(1, "\n", 1);
-	exit (0);
+	return (0);
 }
 
 void	ft_exit(void)

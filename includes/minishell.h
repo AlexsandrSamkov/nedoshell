@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 23:41:58 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/16 06:58:34 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/20 06:01:52 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ typedef struct s_lstenv
 	void	*next;
 }				t_lstenv;
 
-char		**ft_get_env_mass(t_lstenv *env);
+char		**ft_get_env_mass(void);
 char		**ft_get_mas(int count);
 int			ft_is_no_fork(char *s);
 int			ft_unset(char **args);
@@ -145,16 +145,15 @@ void		ft_strjoin_and_free(char **s1, char *s2);
 char		*ft_run_r_in(t_lstcmds *cmds, t_lstcmds *prev);
 int			ft_check_open_r_error(char *s, int token);
 int			ft_run_r_out(int pipefd, char *filename, char **args, int token);
-void		ft_dup2(t_lstcmds *cmds, t_lstcmds *prev);
 int			ft_pwd(void);
-void		ft_echo(char **argv);
+int 		ft_echo(char **argv);
 void		ft_fork_command(t_lstcmds *cmd, t_lstcmds *cmds, t_lstcmds *prev);
 int			ft_is_fork(t_lstcmds *cmds);
 void		ft_open_pipe(t_lstcmds *cmds, t_lstcmds *prev);
 void		ft_close_pipe(t_lstcmds *cmds, t_lstcmds *prev);
 int			ft_is_r_out(t_lstcmds *prev);
 int			ft_check_error_syntax(t_lstcmds *cmds);
-void		ft_run_error(t_lstcmds *cmds);
+int			ft_run_error(t_lstcmds *cmds);
 void		ft_run_command(t_lstcmds *cmds);
 int			ft_cd(char **args);
 int			ft_is_env_key(char *key);
@@ -172,5 +171,9 @@ int			ft_cmds_swap_r_out(t_lstcmds **cmds);
 void		ft_wait_command(void);
 void		ft_exit(void);
 char		*ft_strdup_token(char *s, int start, int end);
+void		ft_run_command2(t_lstcmds *cmds);
+int	ft_run_bin(t_lstcmds *cmds, int is_exit);
+
+
 
 #endif

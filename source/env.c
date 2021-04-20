@@ -110,12 +110,14 @@ char 	**ft_get_env_mass_value(t_lstenv *env, char **res)
 	return (res);
 }		
 
-char	**ft_get_env_mass(t_lstenv *env)
+char	**ft_get_env_mass(void)
 {
 	int			count;
 	char		**res;
 	t_lstenv	*begin;
+	t_lstenv	*env;
 
+	ft_env(&env,0,GET_ENV);
 	count = 0;
 	begin = env;
 	while (begin)

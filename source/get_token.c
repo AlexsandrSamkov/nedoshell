@@ -26,7 +26,6 @@ int	ft_get_token_end(int token, int *i, char *line, int start)
 {
 	int	res;
 
-	(void)start; // удалить
 	res = *i + 1;
 	if (token >= 5)
 		*i += 2;
@@ -34,11 +33,15 @@ int	ft_get_token_end(int token, int *i, char *line, int start)
 		*i += 1;
 	while (res > 1 && line[res - 1] != '\\' && (line[res - 1] == ' '
 		|| line[res -1] == '>'|| line[res - 1] == '<'
-		|| line[res - 1] == '|' || line[res - 1] == '&'))
+		|| line[res - 1] == '|' || line[res - 1] == '&'
+		|| line[res - 1] ==';'))
 		res--;
 	if (line[res - 1] != '\\' && (line[res - 1] == ' ' || line[res - 1] == '>'
-		|| line[res - 1] == '<'|| line[res - 1] == '|' || line[res - 1] == '&'))
+		|| line[res - 1] == '<'|| line[res - 1] == '|' || line[res - 1] == '&'
+		|| line[res - 1] ==';'))
 		res--;
+	if (res < start)
+		res = start;
 	return (res);
 }
 
