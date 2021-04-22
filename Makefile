@@ -38,9 +38,6 @@ $(OBJS_PATH):
 $(OBJS_PATH)%.o : $(SRCS_PATH)%.c  $(HEAD_PATH)	
 	$(CC) $(OFLAGS) $< -o $@
 
-$(LIBFT):
-	$(MAKE_LIBFT)
-
 debug:
 	$(CC) $(DFLAGS) -I $(HEAD_PATH)  $(SRCS) libft.a   -o $(NAME)
 
