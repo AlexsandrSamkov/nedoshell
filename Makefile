@@ -39,7 +39,7 @@ $(OBJS_PATH)%.o : $(SRCS_PATH)%.c  $(HEAD_PATH)
 	$(CC) $(OFLAGS) $< -o $@
 
 debug:
-	$(CC) $(DFLAGS) -I $(HEAD_PATH)  $(SRCS) libft.a   -o $(NAME)
+	$(CC) $(DFLAGS) -I $(HEAD_PATH)  $(SRCS) $(LIBFT)  -o $(NAME)
 
 run:debug
 	./minishell

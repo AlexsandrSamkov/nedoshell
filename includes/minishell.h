@@ -56,6 +56,7 @@
 # define UNSET 'U'
 # define ALL 'A'
 # define GET_ENV 'E'
+# define DEL 'D'
 
 # define ERR_NO_FILE -1
 # define ERR_NO_PERM -2
@@ -248,7 +249,7 @@ void	ft_run(t_lstcmds *cmds, t_lstcmds *prev, char **env);
 void	ft_run_command(t_lstcmds *cmds);
 int	ft_run_bin2(t_lstcmds *cmds, int *ret, int *run);
 int	ft_run_bin(t_lstcmds *cmds, int is_exit);
-void	ft_wait_pid(void);
+void	ft_wait(pid_t);
 int	ft_count_mass(char **mas);
 char	**ft_get_mas(int count);
 void	ft_strjoin_index_get(char *s1, char *s2, char **res, int start);
@@ -335,6 +336,8 @@ t_lstenv	*creat_env(char **env);
 int	check_spechar(char c);
 void	ctrlc_sig(int seg);
 void	ctl_d(t_cmdline *l);
+int	ft_switch_token(int *switch_token, int token);
+pid_t *ft_pid_mass(char c, pid_t value);
 # endif
 
 

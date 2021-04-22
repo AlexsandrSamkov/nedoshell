@@ -67,14 +67,14 @@ int	ft_run_bin(t_lstcmds *cmds, int is_exit)
 	return (run);
 }
 
-void	ft_wait_pid(void)
+void	ft_wait(pid_t pid)
 {
 	int		status;
 
 	status = 0;
-	waitpid (gl_pid, &status, 0);
+	waitpid(pid,&status,0);
 	if (status == 256)
-		ft_errno(256, SET);
+		ft_errno(1, SET);
 	else
 		ft_errno(status, SET);
 }

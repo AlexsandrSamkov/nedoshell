@@ -59,8 +59,6 @@ void	ft_run_command(t_lstcmds *cmds)
 {
 	t_lstcmds	*pipe;
 	char		**env;
-
-	gl_pid = 0;
 	env = ft_get_env_mass();
 	signal (SIGQUIT, SIG_IGN);
 	if (ft_check_error_syntax(cmds))
@@ -76,8 +74,9 @@ void	ft_run_command(t_lstcmds *cmds)
 			execve(cmds->args[0], cmds->args, env);
 			exit(0);
 		}
-		ft_wait_pid();
+		ft_wait(gl_pid);
 	}
+
 	ft_free_mas(&env);
-	ft_wait_pid();
+	
 }

@@ -73,6 +73,30 @@ void	ft_dup2(t_lstcmds *cmds, t_lstcmds *prev)
 	}	
 }
 
+pid_t *ft_pid_mass(char c, pid_t value)
+{
+	static pid_t *mass;
+	static int i;
+
+	if (c == INIT)
+	{
+		i = 0;
+		mass = ft_calloc(2024,sizeof (pid_t));
+		if (!mass)
+			ft_exit_fatal(MSG_ERR_NO_MALLOC);
+	}
+	if (c == SET)
+		mass[i++] = value;
+	if (c == DEL)
+	{
+		i = 0;
+		ft_bzero(mass, 2024 * sizeof(pid_t));
+	}
+	if (c == GET)
+		return (mass);
+	return (mass);
+}
+
 void	ft_run_pipe2(t_lstcmds **cmd, char **env)
 {
 	t_lstcmds	*cmds;
@@ -83,18 +107,23 @@ void	ft_run_pipe2(t_lstcmds **cmd, char **env)
 	gl_pid = fork();
 	if (!gl_pid)
 	{
+//		ft_putnbr_fd((int)gl_pid, 2);
+//		write(2,"\n",1);
 		ft_dup2(cmds, prev);
 		ft_run(cmds, prev, env);
 		exit(0);
 	}
 	else
 	{
+		ft_pid_mass(SET,gl_pid);
 		if (prev && prev->token == TOKEN_PIPE)
 			close(prev->fds[0]);
 		if (cmds->token == TOKEN_PIPE)
 			close(cmds->fds[1]);
+
 		cmds = cmds->prev;
 	}
+
 	*cmd = cmds;
 }
 
@@ -102,9 +131,8 @@ void	ft_run_pipe(t_lstcmds *cmds, char **env)
 {
 	t_lstcmds	*begin;
 	t_lstcmds	*prev;
-
 	begin = cmds;
-	gl_pid = 0;
+	//gl_pid = 0;
 	while (cmds)
 	{
 		prev = cmds->prev;
@@ -123,6 +151,12 @@ void	ft_run_pipe(t_lstcmds *cmds, char **env)
 		}
 		ft_run_pipe2(&cmds, env);
 	}
-	ft_wait_pid();
+	pid_t *mass;
+	int i = 0;
+	mass = ft_pid_mass(GET,0);
+	while (mass[i])
+		ft_wait(mass[i++]);
+	ft_pid_mass(DEL,0);
 	ft_close_all_pipe(cmds);
+
 }

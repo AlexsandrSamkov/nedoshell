@@ -21,6 +21,7 @@ int	ft_check_error_syntax(t_lstcmds *cmds)
 		next = cmds->prev;
 		if (cmds->error == ERR_SYNTAX_ER)
 		{
+			ft_errno(127,SET);
 			if (write(2, MSG_ERR_SYNTAX_ERR, ft_strlen(MSG_ERR_SYNTAX_ERR)) < 0)
 				ft_exit_fatal(MSG_ERR_NO_WRITE);
 			return (1);

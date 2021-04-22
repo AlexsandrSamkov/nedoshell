@@ -23,6 +23,30 @@ void	ft_run_or_and(t_lstcmds **cmd)
 	*cmd = cmds;
 }
 
+int	ft_switch_token(int *switch_token, int token)
+{
+	int	err;
+
+	if (token == TOKEN_BIN)
+		return (1);
+
+	err = ft_errno(0,SET);
+	if (token == TOKEN_OROR || token == TOKEN_ANDAND)
+		*switch_token = token;
+	if ((token == TOKEN_OROR && err) || (token == TOKEN_ANDAND && !err))
+		return (0);
+	if ((*switch_token == TOKEN_OROR && err)
+		|| (*switch_token == TOKEN_ANDAND && !err))
+	{
+		if (*switch_token && token != TOKEN_OROR && token != TOKEN_ANDAND)
+			*switch_token = 0;
+		return (0);
+	}
+	if (*switch_token && token != TOKEN_OROR && token != TOKEN_ANDAND)
+		*switch_token = 0;
+	return (1);
+}
+
 void	ft_parse(char *line)
 {
 	t_lstcmds	*cmds;
@@ -30,7 +54,7 @@ void	ft_parse(char *line)
 	int			token;
 	int			i;
 	int			ret;
-
+	int			check_token = 0;
 	ret = 0;
 	token = -1;
 	cmds = 0;
@@ -41,8 +65,12 @@ void	ft_parse(char *line)
 		ft_insert_env_to_args(&str_token);
 		ft_lstcmdsadd_back(&cmds, \
 		ft_lstcmdsnew(ft_get_args(str_token), token));
-		if (token == TOKEN_BIN)
-			ft_run_or_and(&cmds);
+		if (token == TOKEN_BIN || token == TOKEN_OROR || token == TOKEN_ANDAND)
+		{
+			if (ft_switch_token(&check_token,token))
+				ft_run_command(cmds);
+			ft_lstcmdsdel(&cmds);
+		}
 		str_token = ft_free(str_token);
 	}
 	if (cmds)
