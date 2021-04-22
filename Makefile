@@ -24,12 +24,14 @@ CC 				=	gcc
 CFLAGS			=	 -Wall -Wextra -Werror  -I $(HEAD_PATH) 
 OFLAGS			=	 -Wall -Wextra -Werror  -c -I $(HEAD_PATH) 
 DFLAGS			=	 -g -fsanitize=address -I $(HEAD_PATH) -lncurses -ltermcap
-LIBFT			= 	libft.a
+LIBFT			= 	libs/libft/libft.a
 #-fsanitize=address
 all: $(NAME) 
 $(NAME): $(OBJS_PATH) $(OBJS) $(HEAD_PATH) $(LIBFT)
-	$(CC) $(CFLAGS) -lncurses -ltermcap $(OBJS) $(LIBFT)  -o $(NAME)
+	$(CC) $(CFLAGS) -lncurses -ltermcap $(OBJS) $(LIBFT) -o $(NAME)
 
+$(LIBFT):
+		$(MAKE_LIBFT)
 $(OBJS_PATH):
 	mkdir -p $(OBJS_PATH)
 
