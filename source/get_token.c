@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/14 18:18:46 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/16 06:56:46 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/22 06:57:08 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,14 @@ int	ft_get_token_end(int token, int *i, char *line, int start)
 		*i += 2;
 	else if (line[*i])
 		*i += 1;
-	while (res > 1 && line[res - 1] != '\\' && (line[res - 1] == ' '
-		|| line[res -1] == '>'|| line[res - 1] == '<'
-		|| line[res - 1] == '|' || line[res - 1] == '&'
-		|| line[res - 1] ==';'))
+	while (res > 1 && line[res - 1] != '\\' && (line[res - 1] == ' '\
+	|| line[res -1] == '>' || line[res - 1] == '<'\
+	|| line[res - 1] == '|' || line[res - 1] == '&'\
+	|| line[res - 1] ==';'))
 		res--;
-	if (line[res - 1] != '\\' && (line[res - 1] == ' ' || line[res - 1] == '>'
-		|| line[res - 1] == '<'|| line[res - 1] == '|' || line[res - 1] == '&'
-		|| line[res - 1] ==';'))
+	if (line[res - 1] != '\\' && (line[res - 1] == ' ' || line[res - 1] == '>'\
+	|| line[res - 1] == '<' || line[res - 1] == '|' || line[res - 1] == '&'\
+	|| line[res - 1] ==';'))
 		res--;
 	if (res < start)
 		res = start;
@@ -59,7 +59,7 @@ void	ft_get_token(char *line, int *i, char **res, int *token)
 	start = *i;
 	while (line[*i])
 	{
-		ft_switch_quotes(&spec->quote, &spec->quotes, spec->slash, line[*i]);
+		ft_switch_quotes(spec, line[*i]);
 		*token = ft_istoken(line, i, ft_check_spec(spec));
 		if (0 <= *token || !line[*i + 1])
 		{

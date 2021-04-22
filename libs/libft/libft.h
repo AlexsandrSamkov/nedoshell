@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/03 12:42:52 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/16 05:52:51 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/22 08:58:30 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ char				*ft_strnstr(const char *haystack, \
 void				*ft_calloc(size_t count, size_t size);
 
 int					ft_atoi(const char *str);
+
+int					ft_isspace(char c);
 
 char				*ft_strdup(const char *s1);
 

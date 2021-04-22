@@ -6,109 +6,123 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 06:45:28 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/16 06:51:02 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/22 05:53:06 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-void	ft_get_pipe_data_fix(char **data, int *bytes)
+t_lstcmds	*ft_is_run_pipe(t_lstcmds *cmds)
 {
-	int		len;
-	char	*tmp;
-	int		i;
+	t_lstcmds	*begin;
 
-	if (*bytes == 0)
-		return ;
-	len = ft_strlen(*data);
-	if (len == 0)
-		return ;
-	if (data[0][len - 1] != '\n')
-		return ;
-	tmp = malloc(len + 1);
-	if (!tmp)
-		ft_exit_fatal(MSG_ERR_NO_MALLOC);
-	i = 0;
-	while (i < len - 1)
+	begin = cmds;
+	while (begin)
 	{
-		tmp[i] = data[0][i];
-		i++;
+		if (begin->token == TOKEN_PIPE || begin->token == TOKEN_R_OUT
+			|| begin->token == TOKEN_R_D_OUT || begin->token == TOKEN_R_IN)
+			break ;
+		begin = begin->next;
 	}
-	tmp[i] = '\0';
-	ft_free(data[0]);
-	data[0] = tmp;
-	(*bytes)--;
+	if (begin)
+	{
+		while (cmds->next)
+			cmds = cmds->next;
+		return (cmds);
+	}
+	return (0);
 }
 
-int	ft_get_pipe_data(int fd, char **data)
+void	ft_pipe(t_lstcmds *cmds, t_lstcmds *prev)
 {
-	int		byte;
-	int		bytes;
-	char	*buf;
-	char	*tmp;
-
-	buf = malloc(2);
-	ft_check_str_fatal(buf);
-	bytes = 0;
-	byte = read(fd, buf, 1);
-	while (byte > 0)
+	if (prev && (prev->token == TOKEN_R_D_OUT || prev->token == TOKEN_R_OUT))
 	{
-		bytes += byte;
-		buf[1] = '\0';
-		tmp = *data;
-		*data = ft_strjoin(*data, buf);
-		ft_check_str_fatal(*data);
-		tmp = ft_free(tmp);
-		byte = read(fd, buf, 1);
+		pipe(prev->fds);
+		close(prev->fds[0]);
 	}
-	ft_get_pipe_data_fix(data, &bytes);
-	if (byte < 0)
-		return (-1);
-	buf = ft_free(buf);
-	return (bytes);
+	if (prev && (prev->token == TOKEN_PIPE || prev->token == TOKEN_R_IN))
+		pipe(prev->fds);
+	if (cmds->token == TOKEN_R_IN)
+	{
+		close(cmds->fds[1]);
+	}
 }
 
-int	ft_run_bin(t_lstcmds *cmds, int is_exit)
+void	ft_dup2(t_lstcmds *cmds, t_lstcmds *prev)
 {
-	int ret;
-	int run;
-
-	run = 0;
-	ret = 0;
-	if (!ft_strncmp(cmds->args[0], "env", 4))
+	if (prev && prev->token == TOKEN_R_IN)
+		dup2(prev->fds[1], 1);
+	if (cmds->token == TOKEN_R_IN)
+		dup2(cmds->fds[0], 0);
+	if (cmds->token == TOKEN_R_D_OUT || cmds->token == TOKEN_R_OUT)
 	{
-		ft_env(0, 0, ALL);
-		ret = 1;
+		dup2(cmds->fds[1], 1);
+		close(cmds->fds[1]);
 	}
-	else if (!ft_strncmp(cmds->args[0], "pwd", 4))
-	{
-		ret = ft_pwd();
-		run = 1;
+	if (prev && prev->token == TOKEN_PIPE)
+	{	
+		dup2(prev->fds[0], 0);
+		close(prev->fds[0]);
+		close(prev->fds[1]);
 	}
-	else if (!ft_strncmp(cmds->args[0], "echo", 5))
-	{
-		ret = ft_echo(cmds->args);
-		run = 1;
-	}
-	else if (!ft_strncmp(cmds->args[0],"unset", 6))
-	{
-		ret = ft_unset(cmds->args);
-		run = 1;
-	}
-	else if (!ft_strncmp(cmds->args[0],"export", 7))
-	{
-		ret = ft_export(cmds->args);
-		run = 1;
-	}
-	else if ((!ft_strncmp(cmds->args[0],"cd", 3)))
-	{
-		ret = ft_cd(cmds->args);
-		run = 1;
-	}
-	if (is_exit && run)
-		exit(ret);
-	if (run)
-		ft_errno(ret,SET);
-	return (run);
+	if (cmds->token == TOKEN_PIPE)
+	{	
+		dup2(cmds->fds[1], 1);
+		close(cmds->fds[0]);
+		close(cmds->fds[1]);
+	}	
 }
 
+void	ft_run_pipe2(t_lstcmds **cmd, char **env)
+{
+	t_lstcmds	*cmds;
+	t_lstcmds	*prev;
+
+	cmds = *cmd;
+	prev = cmds->prev;
+	gl_pid = fork();
+	if (!gl_pid)
+	{
+		ft_dup2(cmds, prev);
+		ft_run(cmds, prev, env);
+		exit(0);
+	}
+	else
+	{
+		if (prev && prev->token == TOKEN_PIPE)
+			close(prev->fds[0]);
+		if (cmds->token == TOKEN_PIPE)
+			close(cmds->fds[1]);
+		cmds = cmds->prev;
+	}
+	*cmd = cmds;
+}
+
+void	ft_run_pipe(t_lstcmds *cmds, char **env)
+{
+	t_lstcmds	*begin;
+	t_lstcmds	*prev;
+
+	begin = cmds;
+	gl_pid = 0;
+	while (cmds)
+	{
+		prev = cmds->prev;
+		ft_pipe(cmds, prev);
+		if (prev && (prev->token == TOKEN_R_D_OUT \
+			|| prev->token == TOKEN_R_OUT))
+		{
+			ft_run_r(cmds, prev);
+			cmds = cmds->prev;
+			continue ;
+		}
+		if (ft_run_error(cmds))
+		{
+			cmds = cmds->prev;
+			continue ;
+		}
+		ft_run_pipe2(&cmds, env);
+	}
+	ft_wait_pid();
+	ft_close_all_pipe(cmds);
+}

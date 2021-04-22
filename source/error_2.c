@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 06:39:45 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/16 06:42:16 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/22 06:54:15 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	ft_check_error_syntax(t_lstcmds *cmds)
 	while (cmds)
 	{
 		next = cmds->prev;
-		if (!cmds->args)
+		if (cmds->error == ERR_SYNTAX_ER)
 		{
 			if (write(2, MSG_ERR_SYNTAX_ERR, ft_strlen(MSG_ERR_SYNTAX_ERR)) < 0)
 				ft_exit_fatal(MSG_ERR_NO_WRITE);
@@ -35,7 +35,7 @@ int	ft_run_error_2(t_lstcmds *cmds)
 	if (cmds->error == ERR_NO_PERM)
 	{
 		ft_put_error(cmds->args[0]);
-		ft_put_error(MSG_ERR_NO_PERM);
+		ft_put_error(MSG_ERR_NO_PERM_F);
 		ft_errno(126, SET);
 		return (1);
 	}
@@ -72,5 +72,5 @@ int	ft_run_error(t_lstcmds *cmds)
 		ft_errno(126, SET);
 		return (1);
 	}
-	return(ft_run_error_2(cmds));
+	return (ft_run_error_2(cmds));
 }

@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/14 18:53:24 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/15 02:03:14 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/22 06:50:57 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,7 @@ char	*ft_env(t_lstenv **init, char *res, char parm)
 	if (parm == SET)
 		ft_env_set(env, res);
 	if (parm == ALL)
-	{
 		ft_env_put_all(env);
-		exit(0);
-	}
 	return (0);
 }
 
@@ -117,7 +114,7 @@ char	**ft_get_env_mass(void)
 	t_lstenv	*begin;
 	t_lstenv	*env;
 
-	ft_env(&env,0,GET_ENV);
+	ft_env(&env, 0, GET_ENV);
 	count = 0;
 	begin = env;
 	while (begin)

@@ -4,60 +4,168 @@ void ft_signal_hook()
 	ft_putstr_fd("\n",1);
 }
 
-void	ft_wait_command(void)
+t_lstenv	*creat_env(char **env)
 {
-	char	byte;
-	char	buf[2];
-	char	*command;
-	char	*tmp;
+	int			i;
+	int			co;
+	char		*tmp;
+	char		*name;
+	t_lstenv	*my_env;
 
-	 signal (SIGINT, ft_signal_hook);
-	command = 0;
-	tmp = 0;
-	buf[1] = '\0';
-	write(0, "\x1b[31m", 5);
-	write(0, "Wait CMD\U0001f408: ", 14);
-	write(0, "\x1b[94m", 5);
-	while ((byte = read(0,buf,1)) > 0)
+	i = 0;
+	my_env = 0;
+	while (env && env[i])
 	{
-		if (buf[0] == '\n' && command == 0)
-		{
-			write(0, "\x1b[31m", 5);
-			write(0, "Wait CMD\U0001f408: ", 14);
-			write(0, "\x1b[94m", 5);
-			continue ;
-		}
-		else if (buf[0] == '\n')
-		{
-			ft_parse(&command);
-			command = ft_free(command);
-			write(0, "\x1b[31m", 5);
-			write(0, "Wait CMD\U0001f408: ", 14);
-			write(0, "\x1b[94m", 5);
-		}
-		else
-		{
-			tmp = command;
-			command = ft_strjoin(command, buf);
-			tmp = ft_free(tmp);
-		}
+		tmp = env[i];
+		co = 0;
+		while (tmp[co] != '=')
+			co++;
+		name = ft_strsub(tmp, 0, co);
+		if (!(name))
+			return (0);
+		if (add_to_env(&my_env, name, tmp + co + 1))
+			return (0);
+		ft_memdel((void **)&name);
+		i++;
+	}
+	return (my_env);
+}
+
+
+int	check_spechar(char c)
+{
+	return (c == '>' || c == '<' || c == '&');
+}
+
+void	ctrlc_sig(int seg)
+{
+	t_cmdline	*l;
+	char		buf[2];
+
+	(void)seg;
+	l = NULL;
+	l = keep_l(l, 1);
+	if (l != NULL)
+	{
+		l->res = 0;
+		l->ctl_c = 1;
+		buf[0] = -62;
+		buf[1] = 0;
+		ioctl(0, TIOCSTI, buf);
+	}
+	else
+		ft_putchar('\n');
+}
+
+void	ctl_d(t_cmdline *l)
+{
+	if (l->len == 0)
+	{
+		l->ctl_d = 1;
+		l->res = 0;
 	}
 }
 
-
-
-int	main(int argc, char *argv[], char *env[])
+int	main(int argc, char *argv[], char *envp[])
 {
-	t_lstenv	*lstenv;
+	char		buf[2];
+	char		*command;
+	char		*tmp;
+	char		*line;
+	t_lstenv	*my_env;
 
 	(void)argc;
 	(void)argv;
-	//ft_print_promt();
-	signal (SIGINT, ft_signal_hook);
-	lstenv = ft_get_lstenv(env);
-	ft_env(&lstenv, 0, INIT);
-	ft_wait_command();
+	signal(SIGINT, &ctrlc_sig);
+	my_env = ft_get_lstenv(envp);
+	ft_env(&my_env, 0, INIT);
+//	signal(SIGQUIT, &ctrlslash_sig);
+	command = 0;
+	tmp = 0;
+	buf[1] = '\0';
+	
+	my_env = creat_env(envp);
+	init_history();
+	while (1)
+	{
+		if (!(line = aff_prompt(my_env)))
+			break ;
+		// printf("%s\n",line);
+		if (line && *line && *line != '\n')
+			ft_parse(line);
+		if (line)
+			ft_memdel((void **)&line);
+	}
+	free_history();
+	if (line)
+		ft_memdel((void **)&line);
+	free_environ(my_env);
+	return (0);
 }
+
+
+
+
+
+
+
+
+
+
+// void	ft_wait_command(void)
+// {
+// 	char	byte;
+// 	char	buf[2];
+// 	char	*command;
+// 	char	*tmp;
+
+// 	 signal (SIGINT, ft_signal_hook);
+// 	command = 0;
+// 	tmp = 0;
+// 	buf[1] = '\0';
+// 	write(0, "\x1b[31m", 5);
+// 	write(0, "Wait CMD\U0001f408: ", 14);
+// 	write(0, "\x1b[94m", 5);
+// 	while ((byte = read(0,buf,1)) > 0)
+// 	{
+// 		if (buf[0] == '\n' && command == 0)
+// 		{
+// 			write(0, "\x1b[31m", 5);
+// 			write(0, "Wait CMD\U0001f408: ", 14);
+// 			write(0, "\x1b[94m", 5);
+// 			continue ;
+// 		}
+// 		else if (buf[0] == '\n')
+// 		{
+// 			ft_parse(&command);
+// 			command = ft_free(command);
+// 			write(0, "\x1b[31m", 5);
+// 			write(0, "Wait CMD\U0001f408: ", 14);
+// 			write(0, "\x1b[94m", 5);
+// 		}
+// 		else
+// 		{
+// 			tmp = command;
+// 			command = ft_strjoin(command, buf);
+// 			tmp = ft_free(tmp);
+// 		}
+// 	}
+// }
+
+
+
+// int	main(int argc, char *argv[], char *env[])
+// {
+// 	t_lstenv	*lstenv;
+
+// 	(void)argc;
+// 	(void)argv;
+// 	//ft_print_promt();
+// 	signal (SIGINT, ft_signal_hook);
+// 	lstenv = ft_get_lstenv(env);
+// 	ft_env(&lstenv, 0, INIT);
+// 	ft_wait_command();
+// }
 
 //  int main (int argc, char **argv, char **env)
 //  {

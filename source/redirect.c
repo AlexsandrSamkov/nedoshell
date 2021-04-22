@@ -6,103 +6,105 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/15 03:20:03 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/15 04:06:57 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/22 07:09:29 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-char	*ft_run_r_in(t_lstcmds *cmds, t_lstcmds *prev)
+void	ft_check_open_r_error2(char *s, struct stat sb, int token, int *ret)
 {
-	int		fd;
-	int		byte;
-	int		bytes;
-	char	buf[2];
-	char	*s;
-
-	s = 0;
-	bytes = 0;
-	fd = open(cmds->args[0], O_RDONLY);
-	byte = read(fd, buf, 1);
-	while (byte > 0)
+	if (!(sb.st_mode & S_IWUSR)
+		&& (token == TOKEN_R_D_OUT || token == TOKEN_R_OUT))
 	{
-		buf[1] = '\0';
-		ft_strjoin_and_free(&s, buf);
-		ft_check_str_fatal(s);
-		bytes += byte;
-		byte = read(fd, buf, 1);
+		ft_put_error(MSG_ERR_NO_PERM);
+		ft_put_error(s);
+		ft_put_error("\n");
+		*ret = 126;
 	}
-	if (byte < 0)
-		printf("fatal"); // ошибку
-	if (write(prev->fds[1], s, bytes) < 0)
-		ft_exit_fatal(MSG_ERR_NO_WRITE);
-	close(prev->fds[1]);
-	ft_free(s);
-	return (s);
+	if (!(sb.st_mode & S_IRUSR) && token == TOKEN_R_IN)
+	{
+		ft_put_error(MSG_ERR_NO_PERM);
+		ft_put_error(s);
+		ft_put_error("\n");
+		*ret = 126;
+	}
 }
 
 int	ft_check_open_r_error(char *s, int token)
 {
 	struct stat	sb;
+	int			ret;
 
+	ret = 0;
 	if (!s)
-		return (1);
+		ret = -1;
 	if (stat(s, &sb) == -1)
-		return (0);
-	if (S_IFDIR == (sb.st_mode & S_IFMT))
+		ret = -1;
+	if (S_IFDIR == (sb.st_mode & S_IFMT) && !ret)
 	{
-		write(2, MSG_ERR_IS_DIRECT, ft_strlen(MSG_ERR_IS_DIRECT));
-		write(2, s, ft_strlen(s));
-		write(2, "\n", 1);
-		return (1);
+		ft_put_error(MSG_ERR_IS_DIRECT);
+		ft_put_error(s);
+		ft_put_error("\n");
+		ret = 126;
 	}
-	else if (!(sb.st_mode & S_IWUSR))
-	{
-		write(2, MSG_ERR_NO_PERM, ft_strlen(MSG_ERR_NO_PERM));
-		write(2, s, ft_strlen(s));
-		write(2, "\n", 1);
-		return (1);
-	}
-	(void)token;
-	return (0);
+	ft_check_open_r_error2(s, sb, token, &ret);
+	return (ret);
 }
 
-int	ft_run_r_out(int pipefd, char *filename, char **args, int token)
+void	ft_run_r(t_lstcmds *cmds, t_lstcmds *prev)
 {
-	int		fd;
-	int		count;
-	char	*data;
-	int		i;
-
-	data = 0;
-	if (ft_check_open_r_error(filename, token))
-		return (0);
-	if (token == TOKEN_R_OUT)
-		fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	else
-		fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (fd < 0)
-		return (-1);
-	count = ft_get_pipe_data(pipefd, &data);
-	if (count < 0)
-		return (-1);
-	if (0 > write(fd, data, count))
-		ft_exit_fatal(MSG_ERR_NO_WRITE);
-	i = 1;
-	while (args[i])
+	if (!prev)
+		return ;
+	if (!ft_check_open_r_error(cmds->args[0], prev->token))
 	{
-		if (data && ft_strlen(data))
-			if (0 > write(fd, " ", 1))
-				ft_exit_fatal(MSG_ERR_NO_WRITE);
-		if (0 > write(fd, args[i], ft_strlen(args[i])))
-			ft_exit_fatal(MSG_ERR_NO_WRITE);
-		if (!(args[i + 1] == 0))
-			if (0 > write(fd, " ", 1))
-				ft_exit_fatal(MSG_ERR_NO_WRITE);
-		i++;
+		if (prev->token == TOKEN_R_OUT)
+			prev->fds[1] = \
+			open(cmds->args[0], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+		if (prev->token == TOKEN_R_D_OUT)
+			prev->fds[1] = \
+			open(cmds->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
+		if (prev->fds[1] < 0)
+			ft_errno(1, SET);
+		ft_errno(0, SET);
 	}
-	if (0 > write(fd, "\n", 1))
-		ft_exit_fatal(MSG_ERR_NO_WRITE);
+	else
+		ft_errno(1, SET);
+}
+
+void	ft_run_r_in2(t_lstcmds *cmds, char *buf, int *ret)
+{
+	int	byte;
+	int	fd;
+
+	fd = open(cmds->args[0], O_RDONLY);
+	if (fd < 0)
+	{
+		ft_put_error(MSG_ERR_NO_OPEN);
+		*ret = 127;
+	}
+	byte = (int)read(fd, buf, 1);
+	while (byte > 0)
+	{
+		if (write(1, buf, 1) < 0)
+			ft_put_error(MSG_ERR_NO_WRITE);
+		byte = (int)read(fd, buf, 1);
+	}
 	close(fd);
-	return (0);
+}
+
+void	ft_run_r_in(t_lstcmds *cmds)
+{
+	char	*buf;
+	int		ret;
+
+	ret = 0;
+	buf = malloc(1);
+	if (!buf)
+		ft_exit_fatal(MSG_ERR_NO_MALLOC);
+	ret = ft_check_open_r_error(cmds->args[0], TOKEN_R_IN);
+	if (!ret)
+		ft_run_r_in2(cmds, buf, &ret);
+	buf = ft_free(buf);
+	exit(ret);
 }

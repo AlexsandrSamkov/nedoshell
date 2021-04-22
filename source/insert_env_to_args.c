@@ -23,7 +23,7 @@ void	ft_insert_env_to_args(char **s)
 	i = 0;
 	while (s[0][i])
 	{
-		ft_switch_quotes(&spec->quote, &spec->quotes, spec->slash, s[0][i]);
+		ft_switch_quotes(spec, s[0][i]);
 		if (s[0][i] == '$' && !spec->quote && !spec->slash)
 		{
 			value = ft_del_env_to_str(s, i);

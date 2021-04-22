@@ -6,7 +6,7 @@
 /*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/15 03:40:32 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/16 06:38:41 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/22 06:09:32 by weambros         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	ft_pwd(void)
 		ft_exit_fatal(MSG_ERR_NO_MALLOC);
 	if (getcwd(pwd, 4096))
 	{
-		ft_putendl_fd(pwd, 1); // ошибка врайта
+		ft_putendl_fd(pwd, 1);
 		pwd = ft_free(pwd);
 		return (0);
 	}

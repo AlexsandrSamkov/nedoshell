@@ -37,7 +37,7 @@ void	ft_del_spec(char **s)
 		ft_exit_fatal(MSG_ERR_NO_MALLOC);
 	while (s[0][j])
 	{
-		ft_switch_quotes(&spec->quote, &spec->quotes, spec->slash, s[0][j]);
+		ft_switch_quotes(spec, s[0][j]);
 		if (ft_if_del_spec(s[0], j, spec))
 			res[i++] = s[0][j];
 		ft_switch_slash(spec, s[0][j++]);

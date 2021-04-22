@@ -19,26 +19,26 @@ int	ft_check_spec(t_spec_chr *spec)
 	return (1);
 }
 
-int	ft_switch_quotes(int *quote, int *quotes, int slash, char c)
+int	ft_switch_quotes(t_spec_chr *spec, char c)
 {
-	if (*quote == 1 && !slash && c == '\'' && *quotes == 0)
+	if (spec->quote == 1 && !spec->slash && c == '\'' && spec->quotes == 0)
 	{
-		*quote = 0;
+		spec->quote = 0;
 		return (1);
 	}
-	if (*quote == 0 && !slash && c == '\'' && *quotes == 0)
+	if (spec->quote == 0 && !spec->slash && c == '\'' && spec->quotes == 0)
 	{
-		*quote = 1;
+		spec->quote = 1;
 		return (1);
 	}
-	if (*quotes == 1 && !slash && c == '\"' && *quote == 0)
+	if (spec->quotes == 1 && !spec->slash && c == '\"' && spec->quote == 0)
 	{
-		*quotes = 0;
+		spec->quotes = 0;
 		return (1);
 	}
-	if (*quotes == 0 && !slash && c == '\"' && *quote == 0)
+	if (spec->quotes == 0 && !spec->slash && c == '\"' && spec->quote == 0)
 	{
-		*quotes = 1;
+		spec->quotes = 1;
 		return (1);
 	}
 	return (0);
@@ -80,7 +80,7 @@ int	ft_count_args_spec(char *s)
 	count = 0;
 	while (s[i])
 	{
-		ft_switch_quotes(&spec->quote, &spec->quotes, spec->slash, s[i]);
+		ft_switch_quotes(spec, s[i]);
 		if ((s[i] == '\"' && !spec->quote && !spec->slash)
 			|| (s[i] == '\'' && !spec->quotes && !spec->slash)
 			|| (s[i] == '\\' && !spec->quotes && !spec->quote && !spec->slash))

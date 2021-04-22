@@ -34,7 +34,7 @@ char	*ft_get_args_str(char *line, int *i)
 	start = *i;
 	while (line[*i])
 	{
-		ft_switch_quotes(&spec->quote, &spec->quotes, spec->slash, line[*i]);
+		ft_switch_quotes(spec, line[*i]);
 		if ((line[*i] == ' ' && !ft_check_spec(spec)) || !line[*i])
 		{
 			res = ft_get_args_val(line, start, *i);
@@ -62,7 +62,7 @@ int	ft_args_count(char *line)
 	count = 1;
 	while (line[i])
 	{
-		ft_switch_quotes(&spec->quote, &spec->quotes, spec->slash, line[i]);
+		ft_switch_quotes(spec, line[i]);
 		if (!ft_check_spec(spec) && line[i] == ' ')
 		{
 			while (line[i] && line[i] == ' ')
