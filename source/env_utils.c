@@ -35,14 +35,17 @@ void	ft_env_put_all(t_lstenv *env)
 {
 	while (env)
 	{
-		if (write(1, env->key, (int)ft_strlen(env->key)) < 0)
-			ft_exit_fatal(MSG_ERR_NO_MALLOC);
-		if (write(1, "=", 1) < 0)
-			ft_exit_fatal(MSG_ERR_NO_MALLOC);
-		if (write(1, env->value, (int)ft_strlen(env->value)) < 0)
-			ft_exit_fatal(MSG_ERR_NO_MALLOC);
-		if (write(1, "\n", 1) < 0)
-			ft_exit_fatal(MSG_ERR_NO_MALLOC);
+		if (env->value)
+		{
+			if (write(1, env->key, (int) ft_strlen(env->key)) < 0)
+				ft_exit_fatal(MSG_ERR_NO_MALLOC);
+			if (write(1, "=", 1) < 0)
+				ft_exit_fatal(MSG_ERR_NO_MALLOC);
+			if (write(1, env->value, (int) ft_strlen(env->value)) < 0)
+				ft_exit_fatal(MSG_ERR_NO_MALLOC);
+			if (write(1, "\n", 1) < 0)
+				ft_exit_fatal(MSG_ERR_NO_MALLOC);
+		}
 		env = env->next;
 	}
 }
@@ -53,6 +56,14 @@ void	ft_get_env_key_value(char *env, char **key, char **value)
 	int		i;
 
 	i = 0;
+	if (!ft_strchr(env, '='))
+	{
+		*key = ft_strdup(env);
+		if (!(*key))
+			ft_exit_fatal(MSG_ERR_NO_MALLOC);
+		*value = 0;
+		return ;
+	}
 	tmp = ft_strdup(env);
 	if (!tmp)
 		ft_exit_fatal(MSG_ERR_NO_MALLOC);
@@ -109,5 +120,7 @@ void	ft_env_set(t_lstenv *env, char *set)
 	new = ft_lstenv_new(key, value);
 	if (!new)
 		ft_exit_fatal(MSG_ERR_NO_MALLOC);
+	while (env->next)
+		env = env->next;
 	env->next = new;
 }

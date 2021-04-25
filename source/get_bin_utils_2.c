@@ -78,7 +78,7 @@ int	ft_get_bin(t_lstcmds *cmds, char **bins)
 		&& ft_strlen(cmds->args[0]) == 3)
 		return (cmds->error = 3);
 	if (!ft_strncmp("echo", cmds->args[0], 5)
-		&& ft_strlen(cmds->args[0]) == 3)
+		&& ft_strlen(cmds->args[0]) == 4)
 		return (cmds->error = 3);
 	if (!ft_strncmp("./", cmds->args[0], 3)
 		|| !ft_strncmp(".", cmds->args[0], 2)

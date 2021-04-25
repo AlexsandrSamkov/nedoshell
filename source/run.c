@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
+/*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 06:33:33 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/22 07:12:56 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/24 18:51:41 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,8 @@ void	ft_run_command(t_lstcmds *cmds)
 {
 	t_lstcmds	*pipe;
 	char		**env;
+
 	env = ft_get_env_mass();
-	signal (SIGQUIT, SIG_IGN);
 	if (ft_check_error_syntax(cmds))
 		return ;
 	pipe = ft_is_run_pipe(cmds);
@@ -76,7 +76,5 @@ void	ft_run_command(t_lstcmds *cmds)
 		}
 		ft_wait(gl_pid);
 	}
-
 	ft_free_mas(&env);
-	
 }

@@ -6,7 +6,7 @@
 /*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 16:39:58 by sjennett          #+#    #+#             */
-/*   Updated: 2021/04/20 16:22:43 by sjennett         ###   ########.fr       */
+/*   Updated: 2021/04/24 18:48:44 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,8 @@ char	*prompt(t_lstenv *env)
 		tp = ft_strdup(tp);
 	else
 		tp = getcwd(0, 0);
-	//if (!tp)
-		return (read_line("\x1b[31mWait CMD\U0001f408: \x1b[94m"));
+	return (read_line("\x1b[31mWait CMD\U0001f408: \x1b[94m"));
 	ret = read_line(tp);
-	//ret = 1;
 	ft_memdel((void **)&tp);
 	return (ret);
 }

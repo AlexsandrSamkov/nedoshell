@@ -6,7 +6,7 @@
 /*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 16:39:27 by sjennett          #+#    #+#             */
-/*   Updated: 2021/04/20 16:22:43 by sjennett         ###   ########.fr       */
+/*   Updated: 2021/04/24 18:46:23 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ int	check_valtok(char c)
 		return (0);
 	return (1);
 }
-
-
 
 static int	check_quotes(char *str, char q)
 {

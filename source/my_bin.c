@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   my_bin.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
+/*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/15 03:40:32 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/22 06:09:32 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/25 15:31:17 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,25 @@ int	ft_echo(char **argv)
 	int		i;
 	int		flag;
 	int		argc;
-
 	i = 1;
 	flag = 0;
 	argc = ft_count_mass(argv);
 	if (argc > 1)
 	{
-		if (!ft_strncmp(argv[i], "-n", 3) && ft_strlen((argv[i])) == 2)
+
+		while (argv[i] && !ft_strncmp(argv[i], "-n", 3) && ft_strlen((argv[i]))
+		== 2)
+		{
 			flag = 1;
-		i++;
+			i++;
+		}
 		while (argv[i])
 		{
-			ft_putendl_fd(argv[i], 1);
+			if (write(1,argv[i], ft_strlen(argv[i])) < 0)
+				ft_exit_fatal(MSG_ERR_NO_WRITE);
 			if (argv[i + 1] && argv[i][0] != '\0')
-				write(1, " ", 1);
+				if ((write(1, " ", 1)) < 0)
+					ft_exit_fatal(MSG_ERR_NO_WRITE);
 			i++;
 		}
 	}
@@ -59,11 +64,48 @@ int	ft_echo(char **argv)
 	return (0);
 }
 
-void	ft_exit(void)
+int ft_atol(char *s, unsigned long long *check)
 {
-	t_lstenv	*env;
+	long long n;
+	int i;
+	int sign;
+	*check = 0;
+	sign = 0;
+	i = -1;
+	if (s[0] == '-')
+		sign = (int)s[++i] - 44;
+	while (s[++i])
+	{
+		if (i > 19 + sign || !ft_isdigit(s[i]))
+			return (0);
+		*check = *check * 10 + s[i] - 48;
+	}
+	if ((sign && *check > (unsigned long long)LLONG_MAX + 1) || (!sign && *check > LLONG_MAX))
+		return (0);
+	n = (long long) *check;
+	if (sign)
+		n *= -1;
+	*check = (unsigned long long) n;
+	return (1);
+}
 
-	ft_env(&env, 0, GET_ENV);
-	ft_lstenv_del_all(&env);
-	exit(0);
+int	ft_exit(char *args[])
+{
+	unsigned long long res;
+
+	res = 0;
+	if (!args || !args[1])
+		exit(ft_errno(0, GET));
+	ft_putstr_fd("exit ",2);
+	if (!ft_atol(args[1], &res))
+	{
+		ft_putstr_fd(args[1],2);
+		ft_putstr_fd(" : numeric argument required",2);
+		exit(255);
+	}
+	if (!args[2])
+		exit(res % 256);
+	ft_putstr_fd(" : too many arguments\n",2);
+	ft_errno(1, SET);
+	return(1);
 }

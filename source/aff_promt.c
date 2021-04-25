@@ -19,9 +19,6 @@ void	show_prompt(t_cmdline *l)
 	hist = NULL;
 	hist = save_hist(&hist);
 	ft_putstr_fd(l->prompt, 1);
-	// write(0, "\x1b[31m", 5);
-	// write(0, "Wait CMD\U0001f408: ", 14);
-	// write(0, "\x1b[94m", 5);
 }
 
 char	*aff_prompt2(int ret, char *cmdl, char *temp)

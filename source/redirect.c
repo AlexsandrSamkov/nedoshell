@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirect.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
+/*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/15 03:20:03 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/22 07:09:29 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/24 18:53:21 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,14 @@ int	ft_check_open_r_error(char *s, int token)
 	struct stat	sb;
 	int			ret;
 
-	ret = 0;
+	ret = -5;
 	if (!s)
 		ret = -1;
-	if (stat(s, &sb) == -1)
-		ret = -1;
+	ret = stat(s, &sb);
+	if (ret == -1)
+		return (-1);
+	if (ret == 0)
+		return (0);
 	if (S_IFDIR == (sb.st_mode & S_IFMT) && !ret)
 	{
 		ft_put_error(MSG_ERR_IS_DIRECT);
@@ -56,23 +59,21 @@ void	ft_run_r(t_lstcmds *cmds, t_lstcmds *prev)
 {
 	if (!prev)
 		return ;
-	if (!ft_check_open_r_error(cmds->args[0], prev->token))
+	if (prev->token == TOKEN_R_OUT)
+		prev->fds[1] = \
+		open(cmds->args[0], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (prev->token == TOKEN_R_D_OUT)
+		prev->fds[1] = \
+		open(cmds->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (prev->fds[1] < 0 && prev->fds[1] != -42)
 	{
-		if (prev->token == TOKEN_R_OUT)
-			prev->fds[1] = \
-			open(cmds->args[0], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-		if (prev->token == TOKEN_R_D_OUT)
-			prev->fds[1] = \
-			open(cmds->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
-		if (prev->fds[1] < 0)
-			ft_errno(1, SET);
-		ft_errno(0, SET);
-	}
-	else
 		ft_errno(1, SET);
+		ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
+	}
 }
 
-void	ft_run_r_in2(t_lstcmds *cmds, char *buf, int *ret)
+void	ft_run_r_in2(t_lstcmds *cmds, char *buf)
 {
 	int	byte;
 	int	fd;
@@ -80,8 +81,10 @@ void	ft_run_r_in2(t_lstcmds *cmds, char *buf, int *ret)
 	fd = open(cmds->args[0], O_RDONLY);
 	if (fd < 0)
 	{
-		ft_put_error(MSG_ERR_NO_OPEN);
-		*ret = 127;
+		ft_errno(1, SET);
+		ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
+		return ;
 	}
 	byte = (int)read(fd, buf, 1);
 	while (byte > 0)
@@ -102,9 +105,7 @@ void	ft_run_r_in(t_lstcmds *cmds)
 	buf = malloc(1);
 	if (!buf)
 		ft_exit_fatal(MSG_ERR_NO_MALLOC);
-	ret = ft_check_open_r_error(cmds->args[0], TOKEN_R_IN);
-	if (!ret)
-		ft_run_r_in2(cmds, buf, &ret);
+	ft_run_r_in2(cmds, buf);
 	buf = ft_free(buf);
-	exit(ret);
+	exit(ft_errno(0, GET));
 }

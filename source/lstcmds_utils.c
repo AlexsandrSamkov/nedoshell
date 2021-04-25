@@ -50,8 +50,8 @@ t_lstcmds	*ft_lstcmdsnew(char **args, int token)
 		tmp->prev = 0;
 		tmp->token = token;
 		tmp->error = 0;
-		tmp->fds[0] = -1;
-		tmp->fds[1] = -1;
+		tmp->fds[0] = 0;
+		tmp->fds[1] = -42;
 	}
 	return (tmp);
 }

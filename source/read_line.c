@@ -6,7 +6,7 @@
 /*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 16:39:58 by sjennett          #+#    #+#             */
-/*   Updated: 2021/04/16 20:18:53 by sjennett         ###   ########.fr       */
+/*   Updated: 2021/04/24 18:53:41 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,11 @@ char	*read_line2(t_cmdline *l)
 	char	*result;
 
 	if (l->ctl_d)
+	{
 		result = NULL;
+		write (1, "exit\n", 5);
+		exit(0);
+	}
 	else if (l->ctl_c)
 		result = ft_strdup("\n");
 	else

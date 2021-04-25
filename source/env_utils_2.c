@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_utils_2.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
+/*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/15 01:29:40 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/22 06:08:35 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/24 19:04:22 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,8 @@ int	ft_is_export(char *s)
 
 	i = 0;
 	equal = 0;
+	if (!(ft_isalpha(s[i]) ||  s[i] == '_'))
+		return (-1);
 	while (s[i])
 	{
 		if (s[i] == '=')
@@ -79,33 +81,68 @@ int	ft_is_export(char *s)
 	if (s[0] == '=')
 		return (-1);
 	if (s[i] == '\0')
-		return (-1);
+		return (2);
 	return (1);
 }
 
 int	ft_export(char *args[])
 {
-	int	i;
-	int	ret;
-	int	check;
+	int		i;
+	int		ret;
+	int		check;
+	char	*tmp;
+	char	**env;
 
 	ret = 0;
 	i = 1;
-	while (args[i])
+	env = ft_get_env_mass();
+	if (ft_count_mass(args) == 1)
 	{
-		check = ft_is_export(args[i]);
-		if (check < 0)
+		i = 1;
+		while (env[i])
 		{
-			ret = 1;
-			ft_put_error("export: `");
-			ft_put_error(args[i]);
-			ft_put_error("\': not a valid identifier\n");
+			ret = 0;
+			while (ret <= ft_count_mass(env) - i - 1)
+			{
+				if (env[ret + 1][0] < env[ret][0])
+				{
+					tmp = env[ret];
+					env[ret] = env[ret + 1];
+					env[ret + 1] = tmp;
+				}
+				ret++;
+			}
+			i++;
 		}
-		if (check == 1)
-			ft_env(0, args[i], SET);
-		i++;
+		i = 0;
+		while (env[i] && env[i][0])
+		{
+			ft_putstr_fd( "declare -x ", 1);
+			ft_putstr_fd(env[i],1);
+			ft_putstr_fd("\n",1);
+			i++;
+		}
+		ft_free_mas(&env);
+		return (0);
 	}
-	return (ret);
+	else
+	{
+		while (args[i])
+		{
+			check = ft_is_export(args[i]);
+			if (check < 0)
+			{
+				ret = 1;
+				ft_put_error("export: `");
+				ft_put_error(args[i]);
+				ft_put_error("\': not a valid identifier\n");
+			}
+			if (check >= 0)
+				ft_env(0, args[i], SET);
+			i++;
+		}
+		return (ret);
+	}
 }
 
 char	*ft_del_env_to_str(char **s, int i)

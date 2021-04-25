@@ -12,6 +12,13 @@
 
 #include "../includes/minishell.h"
 
+//void ft_fix_space_env(char **s)
+//{
+//	int len;
+//
+//	ft_strlen(*s)
+//}
+
 void	ft_insert_env_to_args(char **s)
 {
 	int			i;
@@ -24,7 +31,8 @@ void	ft_insert_env_to_args(char **s)
 	while (s[0][i])
 	{
 		ft_switch_quotes(spec, s[0][i]);
-		if (s[0][i] == '$' && !spec->quote && !spec->slash)
+		if (s[0][i] == '$' && s[0][i + 1] != ' ' &&  s[0][i + 1] != '\0'
+		&& !spec->quote && !spec->slash)
 		{
 			value = ft_del_env_to_str(s, i);
 			if (value)
@@ -38,5 +46,6 @@ void	ft_insert_env_to_args(char **s)
 		}
 		ft_switch_slash(spec, s[0][i++]);
 	}
+
 	spec = ft_free(spec);
 }

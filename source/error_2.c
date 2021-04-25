@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error_2.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
+/*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/16 06:39:45 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/22 06:54:15 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/24 18:48:09 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	ft_check_error_syntax(t_lstcmds *cmds)
 		next = cmds->prev;
 		if (cmds->error == ERR_SYNTAX_ER)
 		{
-			ft_errno(127,SET);
+			ft_errno(127, SET);
 			if (write(2, MSG_ERR_SYNTAX_ERR, ft_strlen(MSG_ERR_SYNTAX_ERR)) < 0)
 				ft_exit_fatal(MSG_ERR_NO_WRITE);
 			return (1);

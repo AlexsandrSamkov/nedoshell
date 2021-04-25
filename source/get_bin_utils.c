@@ -59,7 +59,7 @@ void	ft_my_bin(t_lstcmds *cmds)
 		ft_errno(ft_cd(cmds->args), SET);
 	if (!ft_strncmp(cmds->args[0], "exit", 5)
 		|| !ft_strncmp(cmds->args[0], "EXIT", 5))
-		ft_exit();
+		ft_exit(cmds->args);
 }
 
 int	ft_check_bin(char *s)

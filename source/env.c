@@ -92,7 +92,10 @@ char 	**ft_get_env_mass_value(t_lstenv *env, char **res)
 	i = 0;
 	while (env)
 	{
-		str = ft_strjoin(env->key, "=");
+		if (env->value)
+			str = ft_strjoin(env->key, "=");
+		else
+			str = ft_strdup(env->key);
 		if (!str)
 			ft_exit_fatal(MSG_ERR_NO_MALLOC);
 		tmp = str;

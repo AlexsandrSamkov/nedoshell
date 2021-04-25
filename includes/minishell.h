@@ -29,6 +29,7 @@
 # include <sys/ioctl.h>
 # include <limits.h>
 # include <stdio.h>
+# include <errno.h>
 
 # define ERROR 1
 # define SUCCESS 0
@@ -44,9 +45,6 @@
 # define MSG_ERR_UNSET "unset: `"
 # define MSG_ERR_NO_MALLOC "Fatal error: no malloc"
 # define MSG_ERR_NO_WRITE "Fatal error: no write"
-# define MSG_ERR_NO_PIPE "Fatal error: no open pipe"
-# define MSG_ERR_NO_FORK "Fatal error: no open fork"
-# define MSG_ERR_NO_OPEN "Fatal error: no open flow"
 # define MSG_ERR_FILE_NAME_ARGS	\
 "filename argument required\n.: usage: .filename [arguments]\n"
 
@@ -234,11 +232,11 @@ void	ft_lstenv_free(t_lstenv **del);
 void	ft_lstenv_del_all(t_lstenv **lstenv);
 int	ft_pwd(void);
 int	ft_echo(char **argv);
-void	ft_exit(void);
+int	ft_exit(char **args);
 void	ft_check_open_r_error2(char *s, struct stat sb, int token, int *ret);
 int	ft_check_open_r_error(char *s, int token);
 void	ft_run_r(t_lstcmds *cmds, t_lstcmds *prev);
-void	ft_run_r_in2(t_lstcmds *cmds, char *buf, int *ret);
+void	ft_run_r_in2(t_lstcmds *cmds, char *buf);
 void	ft_run_r_in(t_lstcmds *cmds);
 void	ft_run_or_and(t_lstcmds **cmd);
 void	ft_parse(char *line);

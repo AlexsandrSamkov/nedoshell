@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run_utilc.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: weambros <weambros@student.21-school.ru    +#+  +:+       +#+        */
+/*   By: sjennett <sjennett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/15 01:33:31 by weambros          #+#    #+#             */
-/*   Updated: 2021/04/22 06:54:37 by weambros         ###   ########.fr       */
+/*   Updated: 2021/04/24 18:50:28 by sjennett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@ int	ft_run_bin(t_lstcmds *cmds, int is_exit)
 			run = 1;
 		}
 	}
-	else if ((!ft_strncmp(cmds->args[0], "exit", 5)))
-		exit(0);
+	if ((!ft_strncmp(cmds->args[0], "exit", 5)))
+		run = ft_exit(cmds->args);
 	if (is_exit && run)
 		exit(ft_errno(0, GET));
 	if (run)
@@ -72,9 +72,6 @@ void	ft_wait(pid_t pid)
 	int		status;
 
 	status = 0;
-	waitpid(pid,&status,0);
-	if (status == 256)
-		ft_errno(1, SET);
-	else
-		ft_errno(status, SET);
+	waitpid(pid, &status, 0);
+	ft_errno(WIFEXITED(status), SET);
 }
