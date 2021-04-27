@@ -48,11 +48,11 @@ void	plus(t_kursor *p, t_cmdline *l, t_kursor *p1, int i)
 		{
 			l->init_p->r--;
 			p1->r--;
-			ft_putstr_fd(DO, 1);
+			ft_putstr_fd((tgetstr("do", NULL)), 1);
 		}
 		else
 			p->r++;
-		ft_putstr_fd(tgoto(CM, p->c, p->r), 1);
+		ft_putstr_fd(tgoto((tgetstr("cm", NULL)), p->c, p->r), 1);
 	}
 	else
 		p->c++;

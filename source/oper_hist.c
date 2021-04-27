@@ -53,7 +53,8 @@ void	fill_histfile(void)
 	hist = save_hist(&hist);
 	if (!hist)
 		return ;
-	fd = open(HISTORY_FILE_PATH, O_FILL, S_IWUSR | S_IRUSR);
+	fd = open(HISTORY_FILE_PATH, O_CREAT | O_WRONLY | O_TRUNC, S_IWUSR \
+		| S_IRUSR);
 	if (fd < 0)
 		return ;
 	write_backword(fd, hist->hist_list);

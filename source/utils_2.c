@@ -59,19 +59,24 @@ void	ft_strjoin_index_get(char *s1, char *s2, char **res, int start)
 	res[0][i] = '\0';
 }
 
-char	*ft_strjoin_index(char *s1, char *s2, int *start)
+char	*ft_strjoin_index(char **s1, char **s2, int *start)
 {
 	char	*res;
+	char	*tmp;
 
-	if (!s1)
+	tmp = s1[0];
+	if (!s1[0])
 		return (0);
-	if (!s2)
+	if (!s2[0])
 	{
-		res = ft_strdup(s1);
+		res = ft_strdup(s1[0]);
 		if (!res)
 			ft_exit_fatal(MSG_ERR_NO_MALLOC);
+		tmp = ft_free(tmp);
 		return (res);
 	}
-	ft_strjoin_index_get(s1, s2, &res, *start);
+	ft_strjoin_index_get(s1[0], s2[0], &res, *start);
+	tmp = ft_free(tmp);
+	s2[0] = ft_free(s2[0]);
 	return (res);
 }

@@ -32,26 +32,31 @@ int	ft_pwd(void)
 	}
 }
 
+int	ft_echo_2(int flag)
+{
+	if (flag == 0)
+		write(1, "\n", 1);
+	return (0);
+}
+
 int	ft_echo(char **argv)
 {
 	int		i;
 	int		flag;
-	int		argc;
+
 	i = 1;
 	flag = 0;
-	argc = ft_count_mass(argv);
-	if (argc > 1)
+	if (ft_count_mass(argv) > 1)
 	{
-
-		while (argv[i] && !ft_strncmp(argv[i], "-n", 3) && ft_strlen((argv[i]))
-		== 2)
+		while (argv[i] && !ft_strncmp(argv[i], "-n", 3) \
+		&& ft_strlen((argv[i])) == 2)
 		{
 			flag = 1;
 			i++;
 		}
 		while (argv[i])
 		{
-			if (write(1,argv[i], ft_strlen(argv[i])) < 0)
+			if (write(1, argv[i], ft_strlen(argv[i])) < 0)
 				ft_exit_fatal(MSG_ERR_NO_WRITE);
 			if (argv[i + 1] && argv[i][0] != '\0')
 				if ((write(1, " ", 1)) < 0)
@@ -59,16 +64,15 @@ int	ft_echo(char **argv)
 			i++;
 		}
 	}
-	if (flag == 0)
-		write(1, "\n", 1);
-	return (0);
+	return (ft_echo_2(flag));
 }
 
-int ft_atol(char *s, unsigned long long *check)
+int	ft_atol(char *s, unsigned long long *check)
 {
-	long long n;
-	int i;
-	int sign;
+	long long	n;
+	int			i;
+	int			sign;
+
 	*check = 0;
 	sign = 0;
 	i = -1;
@@ -80,7 +84,8 @@ int ft_atol(char *s, unsigned long long *check)
 			return (0);
 		*check = *check * 10 + s[i] - 48;
 	}
-	if ((sign && *check > (unsigned long long)LLONG_MAX + 1) || (!sign && *check > LLONG_MAX))
+	if ((sign && *check > (unsigned long long)LLONG_MAX + 1) \
+		|| (!sign && *check > LLONG_MAX))
 		return (0);
 	n = (long long) *check;
 	if (sign)
@@ -91,21 +96,22 @@ int ft_atol(char *s, unsigned long long *check)
 
 int	ft_exit(char *args[])
 {
-	unsigned long long res;
+	unsigned long long	res;
 
 	res = 0;
 	if (!args || !args[1])
 		exit(ft_errno(0, GET));
-	ft_putstr_fd("exit ",2);
+	ft_putstr_fd("exit ", 2);
 	if (!ft_atol(args[1], &res))
 	{
-		ft_putstr_fd(args[1],2);
-		ft_putstr_fd(" : numeric argument required",2);
+		ft_putstr_fd(args[1], 2);
+		ft_putstr_fd(" : numeric argument required", 2);
 		exit(255);
 	}
 	if (!args[2])
 		exit(res % 256);
-	ft_putstr_fd(" : too many arguments\n",2);
+	ft_putstr_fd(" : too many arguments\n", 2);
 	ft_errno(1, SET);
-	return(1);
+	free_history();
+	return (1);
 }

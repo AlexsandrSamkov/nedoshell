@@ -97,23 +97,24 @@ void	print_cmdline(t_cmdline *l)
 
 	i = -1;
 	init_cur(l);
-	ft_putstr_fd(tgoto(CM, l->init_p->c - 1, l->init_p->r - 1), 1);
-	ft_putstr_fd(CD, 1);
+	ft_putstr_fd(tgoto((tgetstr("cm", NULL)), \
+	l->init_p->c - 1, l->init_p->r - 1), 1);
+	ft_putstr_fd((tgetstr("cd", NULL)), 1);
 	show_prompt(l);
 	while (++i < l->len)
 	{
 		if (i == l->cur)
 			swap_p(&p, l->cur_p, 1);
 		if (i == (l->cur - l->s_sp) && l->is_s)
-			ft_putstr_fd(SO, 1);
+			ft_putstr_fd((tgetstr("so", NULL)), 1);
 		if (i == l->cur && l->is_s)
-			ft_putstr_fd(SE, 1);
+			ft_putstr_fd((tgetstr("se", NULL)), 1);
 		if (l->chars[i] != '\n')
 			ft_putchar_fd(l->chars[i], 1);
 		plus(l->cur_p, l, &p, i);
 	}
 	if (l->cur != l->len)
 		swap_p(&p, l->cur_p, 0);
-	ft_putstr_fd(tgoto(CM, l->cur_p->c, l->cur_p->r), 1);
-	ft_putstr_fd(SE, 1);
+	ft_putstr_fd(tgoto((tgetstr("cm", NULL)), l->cur_p->c, l->cur_p->r), 1);
+	ft_putstr_fd((tgetstr("se", NULL)), 1);
 }

@@ -12,49 +12,6 @@
 
 #include "../includes/minishell.h"
 
-void	ft_check_open_r_error2(char *s, struct stat sb, int token, int *ret)
-{
-	if (!(sb.st_mode & S_IWUSR)
-		&& (token == TOKEN_R_D_OUT || token == TOKEN_R_OUT))
-	{
-		ft_put_error(MSG_ERR_NO_PERM);
-		ft_put_error(s);
-		ft_put_error("\n");
-		*ret = 126;
-	}
-	if (!(sb.st_mode & S_IRUSR) && token == TOKEN_R_IN)
-	{
-		ft_put_error(MSG_ERR_NO_PERM);
-		ft_put_error(s);
-		ft_put_error("\n");
-		*ret = 126;
-	}
-}
-
-int	ft_check_open_r_error(char *s, int token)
-{
-	struct stat	sb;
-	int			ret;
-
-	ret = -5;
-	if (!s)
-		ret = -1;
-	ret = stat(s, &sb);
-	if (ret == -1)
-		return (-1);
-	if (ret == 0)
-		return (0);
-	if (S_IFDIR == (sb.st_mode & S_IFMT) && !ret)
-	{
-		ft_put_error(MSG_ERR_IS_DIRECT);
-		ft_put_error(s);
-		ft_put_error("\n");
-		ret = 126;
-	}
-	ft_check_open_r_error2(s, sb, token, &ret);
-	return (ret);
-}
-
 void	ft_run_r(t_lstcmds *cmds, t_lstcmds *prev)
 {
 	if (!prev)

@@ -60,17 +60,17 @@ void	ft_dup2(t_lstcmds *cmds, t_lstcmds *prev)
 		close(cmds->fds[1]);
 	}
 	if (prev && prev->token == TOKEN_PIPE)
-	{	
+	{
 		dup2(prev->fds[0], 0);
 		close(prev->fds[0]);
 		close(prev->fds[1]);
 	}
 	if (cmds->token == TOKEN_PIPE)
-	{	
+	{
 		dup2(cmds->fds[1], 1);
 		close(cmds->fds[0]);
 		close(cmds->fds[1]);
-	}	
+	}
 }
 
 pid_t	*ft_pid_mass(char c, pid_t value)
@@ -104,8 +104,8 @@ void	ft_run_pipe2(t_lstcmds **cmd, char **env)
 
 	cmds = *cmd;
 	prev = cmds->prev;
-	gl_pid = fork();
-	if (!gl_pid)
+	g_pid = fork();
+	if (!g_pid)
 	{
 		ft_dup2(cmds, prev);
 		ft_run(cmds, prev, env);
@@ -113,7 +113,7 @@ void	ft_run_pipe2(t_lstcmds **cmd, char **env)
 	}
 	else
 	{
-		ft_pid_mass(SET, gl_pid);
+		ft_pid_mass(SET, g_pid);
 		if (prev && prev->token == TOKEN_PIPE)
 			close(prev->fds[0]);
 		if (cmds->token == TOKEN_PIPE)
@@ -121,37 +121,4 @@ void	ft_run_pipe2(t_lstcmds **cmd, char **env)
 		cmds = cmds->prev;
 	}
 	*cmd = cmds;
-}
-
-void	ft_run_pipe(t_lstcmds *cmds, char **env)
-{
-	t_lstcmds	*begin;
-	t_lstcmds	*prev;
-	begin = cmds;
-	while (cmds)
-	{
-		prev = cmds->prev;
-		ft_pipe(cmds, prev);
-		if (prev && (prev->token == TOKEN_R_D_OUT \
-			|| prev->token == TOKEN_R_OUT))
-		{
-			ft_run_r(cmds, prev);
-			cmds = cmds->prev;
-			continue ;
-		}
-		if (ft_run_error(cmds))
-		{
-			cmds = cmds->prev;
-			continue ;
-		}
-		ft_run_pipe2(&cmds, env);
-	}
-	pid_t *mass;
-	int i = 0;
-	mass = ft_pid_mass(GET, 0);
-	while (mass[i])
-		ft_wait(mass[i++]);
-	ft_pid_mass(DEL, 0);
-	ft_close_all_pipe(cmds);
-
 }

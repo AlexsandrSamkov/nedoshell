@@ -35,7 +35,7 @@ void	ft_run_excve(t_lstcmds *cmds, char **env)
 		execve(cmds->args[0], cmds->args, env);
 }
 
-void	ft_close_all_pipe(t_lstcmds *cmds)
+void	ft_close_all_pipe_1(t_lstcmds *cmds)
 {
 	while (cmds)
 	{
@@ -68,13 +68,14 @@ void	ft_run_command(t_lstcmds *cmds)
 		ft_run_pipe(pipe, env);
 	else if (!ft_run_error(cmds) && !ft_run_bin(cmds, 0))
 	{
-		gl_pid = fork();
-		if (!gl_pid)
+		ft_fix_signal_quit(cmds->args[0]);
+		g_pid = fork();
+		if (!g_pid)
 		{
 			execve(cmds->args[0], cmds->args, env);
 			exit(0);
 		}
-		ft_wait(gl_pid);
+		ft_wait(g_pid);
 	}
 	ft_free_mas(&env);
 }

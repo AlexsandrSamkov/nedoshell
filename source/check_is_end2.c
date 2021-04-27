@@ -29,29 +29,6 @@ int	check_spacestr(char *str)
 	return (1);
 }
 
-int	check_allerr(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (check_spechar(str[i]))
-		{
-			while (check_spechar(str[i]))
-				i++;
-			while (check_space(str[i]))
-				i++;
-			while (ft_isdigit(str[i]))
-				i++;
-			if (check_spechar(str[i]))
-				return (ft_perror(0, "syntax error near unexpected token", -1));
-		}
-		i++;
-	}
-	return (check_errline(str));
-}
-
 int	check_aller(char *str)
 {
 	int	i;
@@ -78,7 +55,6 @@ int	check_aller(char *str)
 
 int	ft_perror(char *s, char *str, int ret)
 {
-	ft_putstr_fd("21sh: ", 2);
 	if (s)
 		ft_putstr_fd(s, 2);
 	ft_putendl_fd(str, 2);

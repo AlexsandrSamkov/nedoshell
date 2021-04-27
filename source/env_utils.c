@@ -31,42 +31,15 @@ char	*ft_lst_get_env(t_lstenv *env, char *s)
 	return (res);
 }
 
-void	ft_env_put_all(t_lstenv *env)
-{
-	while (env)
-	{
-		if (env->value)
-		{
-			if (write(1, env->key, (int) ft_strlen(env->key)) < 0)
-				ft_exit_fatal(MSG_ERR_NO_MALLOC);
-			if (write(1, "=", 1) < 0)
-				ft_exit_fatal(MSG_ERR_NO_MALLOC);
-			if (write(1, env->value, (int) ft_strlen(env->value)) < 0)
-				ft_exit_fatal(MSG_ERR_NO_MALLOC);
-			if (write(1, "\n", 1) < 0)
-				ft_exit_fatal(MSG_ERR_NO_MALLOC);
-		}
-		env = env->next;
-	}
-}
-
-void	ft_get_env_key_value(char *env, char **key, char **value)
+void	ft_get_env_key_value_2(char *env, char **key, char **value)
 {
 	char	*tmp;
 	int		i;
 
-	i = 0;
-	if (!ft_strchr(env, '='))
-	{
-		*key = ft_strdup(env);
-		if (!(*key))
-			ft_exit_fatal(MSG_ERR_NO_MALLOC);
-		*value = 0;
-		return ;
-	}
 	tmp = ft_strdup(env);
 	if (!tmp)
 		ft_exit_fatal(MSG_ERR_NO_MALLOC);
+	i = 0;
 	while (tmp[i] != '=')
 		i++;
 	tmp[i] = '\0';
@@ -80,6 +53,19 @@ void	ft_get_env_key_value(char *env, char **key, char **value)
 	tmp -= i;
 	tmp[i] = '=';
 	free(tmp);
+}
+
+void	ft_get_env_key_value(char *env, char **key, char **value)
+{
+	if (!ft_strchr(env, '='))
+	{
+		*key = ft_strdup(env);
+		if (!(*key))
+			ft_exit_fatal(MSG_ERR_NO_MALLOC);
+		*value = 0;
+		return ;
+	}
+	ft_get_env_key_value_2(env, key, value);
 }
 
 int	ft_env_set_2(t_lstenv *env, t_lstenv *next, char *key, char *value)

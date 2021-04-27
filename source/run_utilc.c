@@ -71,7 +71,13 @@ void	ft_wait(pid_t pid)
 {
 	int		status;
 
-	status = 0;
 	waitpid(pid, &status, 0);
-	ft_errno(WIFEXITED(status), SET);
+	if (WTERMSIG(status) == SIGQUIT)
+		ft_errno(131, SET);
+	else if (WTERMSIG(status) == SIGINT)
+		ft_errno(130, SET);
+	else if (status)
+		ft_errno(WIFEXITED(status), SET);
+	else
+		ft_errno(0, SET);
 }

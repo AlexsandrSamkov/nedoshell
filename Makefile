@@ -12,7 +12,7 @@ SRCS_LIST 		=	main.c cd.c check.c del_spec.c \
 					aff_promt.c check_is_end.c check_is_end2.c init_cmd.c\
 					init_hist.c oper_cursor.c oper_kursor2.c oper_hist.c\
 					oper_keys.c oper_keys2.c print_cmd.c read_line.c tools.c\
-					init_promt.c
+					init_promt.c env_utils_3.c fork_utils.c term_utils.c\
 
 SRCS			=	$(addprefix $(SRCS_PATH), $(SRCS_LIST))	
 OBJS_LIST		=	$(patsubst %.c, %.o, $(SRCS_LIST))
@@ -23,7 +23,7 @@ MAKE_LIBFT		=	make -C libs/libft
 CC 				=	gcc
 CFLAGS			=	 -Wall -Wextra -Werror  -I $(HEAD_PATH) 
 OFLAGS			=	 -Wall -Wextra -Werror  -c -I $(HEAD_PATH) 
-DFLAGS			=	 -g -I $(HEAD_PATH) -lncurses -ltermcap
+DFLAGS			=	 -g -I $(HEAD_PATH)  -lncurses -ltermcap
 LIBFT			= 	libs/libft/libft.a
 #-fsanitize=address
 all: $(NAME) 
@@ -40,6 +40,9 @@ $(OBJS_PATH)%.o : $(SRCS_PATH)%.c  $(HEAD_PATH)
 
 debug:
 	$(CC) $(DFLAGS) -I $(HEAD_PATH)  $(SRCS) $(LIBFT)  -o $(NAME)
+
+norm:
+	norminette $(SRCS) includes/minishell.h | grep Error
 
 run:debug
 	./minishell
